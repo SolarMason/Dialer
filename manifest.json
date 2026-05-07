@@ -1,0 +1,45 @@
+{
+  "name": "NEPA-PRO Dialer & CRM",
+  "short_name": "NEPA Dialer",
+  "description": "iOS-style phone dialer & lightweight CRM. Veteran owned & operated, NEPA region.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#0A2540",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icons/icon-1024.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Call NEPA-PRO",
+      "short_name": "Call",
+      "description": "Dial (570) 677-7971",
+      "url": "tel:+15706777971",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "New Contact",
+      "short_name": "New",
+      "description": "Add a new contact",
+      "url": "./?action=new",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Leads",
+      "short_name": "Leads",
+      "description": "Open lead lists",
+      "url": "./?tab=leads",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
+}

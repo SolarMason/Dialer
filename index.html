@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0A2540">
+<meta name="description" content="NEPA-PRO Dialer — iOS-style phone dialer & CRM. Veteran owned & operated, NEPA region.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NEPA Dialer">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=yes">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="NEPA-PRO — Veteran Owned Construction & Property Maintenance">
+<meta property="og:description" content="Call (570) 677-7971 — Whole-home renovations, electrical, HVAC, mold remediation, roofing. NEPA region. Veteran Owned & Operated.">
+<meta property="og:image" content="./icons/og-card.png">
+<meta property="og:url" content="https://dialer.nepa-pro.com">
+<meta property="og:site_name" content="NEPA-PRO Dialer">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NEPA-PRO Dialer">
+<meta name="twitter:description" content="Call (570) 677-7971 — Veteran Owned NEPA Construction & Property Maintenance">
+<meta name="twitter:image" content="./icons/og-card.png">
+
+<title>NEPA-PRO Dialer</title>
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png">
+<link rel="icon" href="./icons/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="167x167" href="./icons/icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="./icons/icon-152.png">
+<link rel="mask-icon" href="./icons/icon.svg" color="#34C759">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#000;--bg2:#1C1C1E;--bg3:#2C2C2E;
+  --sep:rgba(84,84,88,0.65);
+  --t1:#fff;--t2:rgba(235,235,245,0.6);--t3:rgba(235,235,245,0.3);
+  --link:#0A84FF;--green:#30D158;--green-call:#34C759;--red:#FF453A;
+  --orange:#FF9F0A;--yellow:#FFD60A;--purple:#BF5AF2;--pink:#FF375F;--indigo:#5E5CE6;--teal:#64D2FF;
+  --kbtn:#333336;--kbtn-act:#5A5A5C;
+  --tabbg:rgba(22,22,23,0.78);--searchbg:rgba(118,118,128,0.24);
+  --fill:rgba(118,118,128,0.24);--fill2:rgba(120,120,128,0.32);
+  --st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);
+  --tabh:calc(50px + env(safe-area-inset-bottom));--navh:44px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif;
+  font-size:17px;line-height:1.4;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;user-select:none;-webkit-user-select:none;overscroll-behavior:none}
+input,textarea,select{user-select:text;-webkit-user-select:text;font:inherit;font-size:17px}
+button{background:none;border:none;color:inherit;font:inherit;cursor:pointer}
+a{color:var(--link);text-decoration:none}
+
+#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+@media (min-width:768px) and (max-width:1023px){
+  body{background:radial-gradient(circle at 20% 0%,rgba(52,199,89,0.08),transparent 50%),
+       radial-gradient(circle at 80% 100%,rgba(10,132,255,0.06),transparent 50%),#0A0A0B}
+  #app{position:relative;inset:auto;margin:24px auto;width:414px;height:calc(100vh - 48px);
+       max-height:900px;border-radius:44px;overflow:hidden;
+       box-shadow:0 0 0 10px #1a1a1c,0 0 0 11px #2a2a2c,0 50px 100px rgba(0,0,0,0.5)}
+  #app::before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);
+       width:120px;height:28px;background:#000;border-radius:18px;z-index:999;pointer-events:none}
+}
+
+
+/* Nav bar */
+.nav{position:relative;height:calc(var(--navh) + var(--st));padding:var(--st) 16px 0;
+  display:flex;align-items:center;justify-content:center;background:var(--tabbg);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:0.5px solid var(--sep);z-index:100;flex-shrink:0}
+.nav.nb{border-bottom:none}
+.nav h1{font-size:17px;font-weight:600;letter-spacing:-0.4px}
+.nav-l,.nav-r{position:absolute;top:calc(var(--st) + 6px);display:flex;align-items:center;gap:14px;
+  font-size:17px;color:var(--link)}
+.nav-l{left:14px}.nav-r{right:14px}
+.nb-btn{color:var(--link);font-size:17px;padding:6px 4px;display:flex;align-items:center;gap:4px}
+.nb-btn:active{opacity:0.4}
+.nb-btn.bold{font-weight:600}
+
+/* Pages */
+.pages{flex:1;position:relative;overflow:hidden}
+.page{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg)}
+.page.on{display:flex;animation:fade .2s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--tabh) + 16px)}
+.scroll::-webkit-scrollbar{width:0}
+
+/* Tab bar */
+.tabs{position:absolute;bottom:0;left:0;right:0;height:var(--tabh);padding-bottom:var(--sb);
+  background:var(--tabbg);backdrop-filter:saturate(180%) blur(30px);
+  -webkit-backdrop-filter:saturate(180%) blur(30px);
+  border-top:0.5px solid var(--sep);display:flex;z-index:200}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 4px;color:var(--t2);gap:3px;transition:color .15s}
+.tab.on{color:var(--link)}
+.tab svg{width:26px;height:26px}
+.tab .l{font-size:10px;font-weight:500}
+
+/* Big iOS title */
+.bt{font-size:34px;font-weight:700;letter-spacing:-0.4px;padding:8px 16px 12px;color:var(--t1)}
+
+/* Search bar */
+.sb{margin:4px 16px 8px;background:var(--searchbg);border-radius:10px;display:flex;align-items:center;
+  padding:7px 8px;gap:4px}
+.sb svg{width:16px;height:16px;fill:var(--t2);flex-shrink:0;margin-left:2px}
+.sb input{flex:1;background:transparent;border:none;outline:none;color:var(--t1);font-size:17px;padding:0 4px}
+.sb input::placeholder{color:var(--t2)}
+.sb .clr{width:20px;height:20px;border-radius:50%;background:var(--t3);display:none;
+  align-items:center;justify-content:center}
+.sb.on .clr{display:flex}
+.sb .clr svg{width:12px;height:12px;fill:var(--bg);margin:0}
+
+/* List (iOS grouped) */
+.gr{margin-top:24px}
+.gr:first-child{margin-top:8px}
+.gr-h{font-size:13px;text-transform:uppercase;color:var(--t2);padding:0 32px 6px;letter-spacing:-0.08px}
+.list{background:var(--bg2);margin:0 16px;border-radius:10px;overflow:hidden}
+.row{display:flex;align-items:center;padding:11px 16px;min-height:44px;border-top:0.5px solid var(--sep);
+  position:relative;transition:background .1s;width:100%;text-align:left;color:var(--t1)}
+.row:first-child{border-top:none}
+.row:active{background:var(--fill)}
+.row .ico{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  margin-right:12px;flex-shrink:0;background:var(--fill);color:#fff}
+.row .ico svg{width:18px;height:18px;fill:currentColor}
+.row .ico.gn{background:var(--green-call)}.row .ico.bl{background:var(--link)}
+.row .ico.rd{background:var(--red)}.row .ico.or{background:var(--orange)}
+.row .ico.pu{background:var(--purple)}.row .ico.tl{background:var(--teal)}
+.row .ico.pk{background:var(--pink)}.row .ico.in{background:var(--indigo)}
+.row .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .t{font-size:17px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t.wrap{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.35}
+.row .t.miss{color:var(--red)}
+.row .s{font-size:14px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .meta{font-size:15px;color:var(--t2);margin-left:8px;flex-shrink:0;display:flex;align-items:center;gap:8px}
+.row .chev{width:14px;height:14px;fill:var(--t3)}
+.row .info{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:6px;background:var(--fill);flex-shrink:0}
+.row .info:active{background:var(--fill2)}
+.row .info svg{width:18px;height:18px;fill:var(--link)}
+.row .info.gn{background:var(--green-call)}.row .info.gn svg{fill:#fff}
+
+/* Section letter */
+.sec-l{padding:6px 32px 4px;font-size:13px;text-transform:uppercase;color:var(--t2);background:var(--bg);
+  position:sticky;top:0;z-index:5}
+
+/* Avatar */
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:600;color:#fff;flex-shrink:0;margin-right:12px;letter-spacing:0.5px}
+.av.lg{width:96px;height:96px;font-size:36px;margin:0 0 12px}
+
+/* Empty */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:48px 32px;text-align:center;color:var(--t2)}
+.empty svg{width:60px;height:60px;fill:var(--t3);margin-bottom:14px}
+.empty h3{font-size:20px;font-weight:600;color:var(--t1);margin-bottom:6px;letter-spacing:-0.4px}
+.empty p{font-size:15px;line-height:1.45;max-width:280px}
+.empty .btn{margin-top:14px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;
+  border-radius:14px;font-size:17px;font-weight:600;letter-spacing:-0.4px;transition:opacity .15s,transform .1s}
+.btn:active{opacity:0.7;transform:scale(0.98)}
+.btn-p{background:var(--link);color:#fff}
+.btn-s{background:var(--fill2);color:var(--t1)}
+.btn-g{background:var(--green-call);color:#fff}
+
+/* Status badges */
+.bdg{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;
+  font-size:12px;font-weight:600;letter-spacing:0.2px}
+.bdg-new{background:rgba(10,132,255,0.18);color:#66B5FF}
+.bdg-contacted{background:rgba(255,159,10,0.18);color:#FFB340}
+.bdg-qualified{background:rgba(191,90,242,0.18);color:#D08CFF}
+.bdg-customer{background:rgba(52,199,89,0.18);color:#58D67A}
+.bdg-lost{background:rgba(255,69,58,0.18);color:#FF7A70}
+.bdg-pre{background:rgba(118,118,128,0.20);color:var(--t2)}
+
+/* ===== KEYPAD ===== */
+.kp-display{flex:0 0 auto;min-height:80px;display:flex;align-items:center;justify-content:center;
+  padding:20px 24px 4px;position:relative}
+.kp-num{font-size:42px;font-weight:300;letter-spacing:-1.5px;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;color:var(--t1);
+  min-height:50px;font-feature-settings:"tnum"}
+.kp-match{font-size:14px;color:var(--t2);text-align:center;margin-top:-2px;margin-bottom:4px;
+  min-height:18px;padding:0 24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kp-match strong{color:var(--green);font-weight:600}
+.kp-grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);
+  gap:12px;padding:8px 32px 4px;align-items:center;justify-items:center;max-height:480px}
+.k{width:75px;height:75px;max-width:22vw;max-height:22vw;border-radius:50%;background:var(--kbtn);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:background .06s,transform .06s;-webkit-user-select:none;user-select:none}
+.k:active,.k.pr{background:var(--kbtn-act);transform:scale(0.96)}
+.k .num{font-size:32px;line-height:1;letter-spacing:-1px;color:var(--t1)}
+.k .lt{font-size:10px;letter-spacing:2px;margin-top:2px;color:var(--t1);font-weight:500}
+.k.s .num,.k.h .num{font-size:36px}
+.kp-act{flex:0 0 auto;display:grid;grid-template-columns:1fr 75px 1fr;align-items:center;
+  padding:8px 32px 16px;gap:12px}
+.kp-add{color:var(--link);font-size:17px;text-align:left;padding:8px 0;visibility:hidden}
+.kp-add.on{visibility:visible}
+.call{width:75px;height:75px;border-radius:50%;background:var(--green-call);display:flex;
+  align-items:center;justify-content:center;margin:0 auto;
+  transition:background .1s,transform .1s;box-shadow:0 2px 12px rgba(52,199,89,0.4)}
+.call:active{background:#2BAE4A;transform:scale(0.95)}
+.call svg{width:32px;height:32px;fill:#fff}
+.call.dis{background:var(--kbtn);box-shadow:none;pointer-events:none}
+.call.dis svg{fill:var(--t3)}
+.kp-bk{display:flex;justify-content:flex-end;visibility:hidden}
+.kp-bk.on{visibility:visible}
+.kp-bk button{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.kp-bk button:active{background:var(--fill)}
+.kp-bk svg{width:28px;height:28px;fill:var(--t1)}
+
+/* Form */
+.form{background:var(--bg2);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.frow{display:flex;align-items:center;padding:11px 16px;border-top:0.5px solid var(--sep);min-height:44px}
+.frow:first-child{border-top:none}
+.frow label{font-size:17px;color:var(--t1);width:100px;flex-shrink:0}
+.frow input,.frow textarea,.frow select{flex:1;background:transparent;border:none;outline:none;color:var(--t1);padding:0;resize:none}
+.frow input::placeholder,.frow textarea::placeholder{color:var(--t2)}
+.frow textarea{min-height:60px;padding-top:4px}
+.frow select{appearance:none;background:transparent}
+
+/* Modal */
+.mb{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:none;
+  align-items:flex-end;justify-content:center;opacity:0;transition:opacity .25s}
+.mb.on{display:flex;opacity:1}
+@media (min-width:768px){.mb{align-items:center}}
+.modal{background:var(--bg2);width:100%;max-width:100%;max-height:92vh;
+  border-radius:14px 14px 0 0;overflow:hidden;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(0.32,0.72,0,1)}
+@media (min-width:768px){.modal{max-width:420px;border-radius:14px;max-height:80vh}}
+.mb.on .modal{transform:translateY(0)}
+.m-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;
+  border-bottom:0.5px solid var(--sep);flex-shrink:0;gap:8px}
+.m-t{font-size:17px;font-weight:600;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-b{flex:1;overflow-y:auto;padding:16px}
+
+/* Action sheet */
+.as{position:fixed;inset:0;z-index:1500;display:none;align-items:flex-end;justify-content:center;
+  background:rgba(0,0,0,0.4);padding:8px;padding-bottom:calc(8px + var(--sb));
+  opacity:0;transition:opacity .2s}
+.as.on{display:flex;opacity:1}
+@media (min-width:768px){.as{align-items:center}}
+.as-i{width:100%;max-width:414px;display:flex;flex-direction:column;gap:8px;
+  transform:translateY(100%);transition:transform .25s cubic-bezier(0.32,0.72,0,1)}
+.as.on .as-i{transform:translateY(0)}
+.as-g{background:rgba(44,44,46,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-radius:14px;overflow:hidden}
+.as-b{display:block;width:100%;padding:17px 16px;font-size:20px;text-align:center;color:var(--link);
+  border-top:0.33px solid rgba(255,255,255,0.18);font-weight:400}
+.as-b:first-child{border-top:none}
+.as-b:active{background:rgba(255,255,255,0.08)}
+.as-b.del{color:var(--red)}
+.as-b.cn{font-weight:600}
+
+/* Toast */
+.toast{position:fixed;bottom:calc(var(--tabh) + 20px);left:50%;
+  transform:translateX(-50%) translateY(100px);background:var(--bg3);color:var(--t1);
+  padding:12px 20px;border-radius:12px;font-size:15px;font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:2000;opacity:0;
+  transition:opacity .25s,transform .25s;pointer-events:none;max-width:90%;
+  text-align:center;border:0.5px solid var(--sep)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Contact hero */
+.hero{display:flex;flex-direction:column;align-items:center;padding:16px 16px 20px;text-align:center}
+.hero h1{font-size:24px;font-weight:600;letter-spacing:-0.4px;margin-bottom:2px}
+.hero .sub{font-size:15px;color:var(--t2)}
+
+/* Quick action grid */
+.qa{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 16px 16px}
+.qa-b{background:var(--bg2);border-radius:12px;padding:14px 4px 10px;display:flex;flex-direction:column;
+  align-items:center;gap:6px;transition:opacity .1s}
+.qa-b:active{opacity:0.6}
+.qa-b svg{width:24px;height:24px;fill:var(--link)}
+.qa-b .l{font-size:11px;color:var(--link);font-weight:500}
+.qa-b[disabled]{opacity:0.35;pointer-events:none}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:8px 16px 16px}
+.st{background:var(--bg2);padding:14px;border-radius:12px}
+.st .l{font-size:13px;color:var(--t2);margin-bottom:4px}
+.st .v{font-size:28px;font-weight:700;letter-spacing:-0.5px;font-feature-settings:"tnum"}
+
+/* Segmented */
+.seg{display:flex;background:var(--searchbg);border-radius:9px;padding:2px;margin:8px 16px 4px;gap:0}
+.seg button{flex:1;padding:7px 10px;font-size:13px;font-weight:500;border-radius:7px;color:var(--t1);transition:background .15s}
+.seg button.on{background:var(--bg3);box-shadow:0 1px 4px rgba(0,0,0,0.4)}
+
+/* Business card */
+.bc{margin:16px;border-radius:20px;padding:24px;
+  background:linear-gradient(135deg,#0A2540 0%,#1A4070 50%,#0F2A4F 100%);
+  color:#fff;position:relative;overflow:hidden;
+  box-shadow:0 12px 40px rgba(0,0,0,0.5);min-height:220px;
+  display:flex;flex-direction:column;justify-content:space-between}
+.bc::before{content:"";position:absolute;top:-40%;right:-20%;width:250px;height:250px;
+  background:radial-gradient(circle,rgba(52,199,89,0.25),transparent 60%);pointer-events:none}
+.bc::after{content:"";position:absolute;bottom:-50%;left:-10%;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(255,159,10,0.15),transparent 60%);pointer-events:none}
+.bc-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
+.bc-logo{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:0.9}
+.bc-vet{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;
+  background:rgba(255,255,255,0.12);padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.18);text-transform:uppercase}
+.bc-name{font-size:26px;font-weight:700;letter-spacing:-0.5px;margin-top:28px;position:relative;z-index:2}
+.bc-title{font-size:13px;opacity:0.85;margin-top:2px;position:relative;z-index:2}
+.bc-info{margin-top:18px;display:flex;flex-direction:column;gap:4px;position:relative;z-index:2;font-size:13px;opacity:0.95}
+.bc-info-r{display:flex;align-items:center;gap:8px}
+.bc-info-r svg{width:13px;height:13px;fill:currentColor;opacity:0.7;flex-shrink:0}
+
+/* Categories grid */
+.cat-g{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:8px 16px 16px}
+.cat-c{background:var(--bg2);border-radius:14px;padding:14px;display:flex;flex-direction:column;
+  gap:8px;transition:transform .1s}
+.cat-c:active{transform:scale(0.97)}
+.cat-c .ico-w{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:20px}
+.cat-c .nm{font-size:15px;font-weight:600;color:var(--t1)}
+.cat-c .ct{font-size:12px;color:var(--t2)}
+
+/* Lead chip row (small list) */
+.cs-bar{display:flex;gap:6px;padding:0 16px 8px;flex-wrap:wrap}
+.chip{padding:5px 12px;background:var(--searchbg);border-radius:999px;font-size:13px;color:var(--t1)}
+.chip.on{background:var(--link);color:#fff}
+.chip:active{opacity:0.7}
+
+input[type="file"]{display:none}
+
+/* Switch */
+.sw{position:relative;display:inline-block;width:51px;height:31px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0}
+.sw-s{position:absolute;cursor:pointer;inset:0;background:#39393D;transition:.2s;border-radius:999px}
+.sw-s::before{position:absolute;content:"";height:27px;width:27px;left:2px;top:2px;background:#fff;
+  transition:.2s;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.4)}
+input:checked + .sw-s{background:var(--green)}
+input:checked + .sw-s::before{transform:translateX(20px)}
+
+/* Skeleton row for lazy lead lists */
+.skel{height:60px;background:linear-gradient(90deg,var(--bg2),var(--bg3),var(--bg2));
+  background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;margin:8px 16px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Misc */
+.center{text-align:center}
+.muted{color:var(--t2)}
+.danger{color:var(--red)}
+.divider{height:24px}
+
+/* ===== DESKTOP (≥1024px) — sidebar nav + wide content ===== */
+@media (min-width:1024px){
+  body{background:#0A0A0B}
+  #app{position:fixed;inset:0;flex-direction:row;margin:0;width:auto;height:auto;
+       max-height:none;border-radius:0;box-shadow:none;overflow:hidden}
+  #app::before{display:none}
+
+  /* Bottom tab bar -> left sidebar */
+  .tabs{order:-1;position:relative;flex-direction:column;width:240px;height:100vh;
+        bottom:auto;left:auto;right:auto;padding:0 10px 16px;
+        border-top:none;border-right:0.5px solid var(--sep);
+        background:#161618;backdrop-filter:none;-webkit-backdrop-filter:none;
+        flex-shrink:0;align-items:stretch;gap:2px;z-index:200}
+  .tabs::before{content:"NEPA-PRO Dialer";display:flex;align-items:center;gap:10px;
+                font-size:15px;font-weight:700;letter-spacing:-0.2px;
+                padding:22px 14px 18px;color:var(--t1);flex-shrink:0;
+                background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0%25' stop-color='%233FE56A'/><stop offset='100%25' stop-color='%2328A848'/></linearGradient></defs><rect width='200' height='200' rx='44' fill='%230A2540'/><g transform='translate(100 100) rotate(-30) translate(-50 -50)'><path d='M88.6 73.3L74.4 65.5c-2.5-1.4-5.7-0.7-7.4 1.6l-4.4 5.7c-13-6.5-23.5-17-30-30l5.7-4.4c2.3-1.7 3-4.9 1.6-7.4L31.7 16.4c-1.4-2.5-4.4-3.4-7-2.1L9.5 22.5c-2.4 1.2-3.7 3.9-3.1 6.5C12.5 60.4 39.6 87.5 71 93.6c2.6 0.5 5.3-0.7 6.5-3.1l8.2-15.2c1.3-2.6 0.4-5.6-2.1-7z' fill='url(%23g)'/></g></svg>");
+                background-repeat:no-repeat;background-size:24px;background-position:14px center;
+                padding-left:48px}
+  .tab{flex:0 0 auto;flex-direction:row;justify-content:flex-start;align-items:center;
+       padding:10px 14px;border-radius:10px;gap:14px;transition:background .15s,color .15s}
+  .tab:hover{background:var(--fill)}
+  .tab.on{background:rgba(10,132,255,0.18);color:var(--link)}
+  .tab svg{width:22px;height:22px}
+  .tab .l{font-size:15px;font-weight:500}
+
+  /* Main content area */
+  .pages{flex:1;position:relative;height:100vh;min-width:0}
+  .scroll{padding-bottom:32px}
+
+  /* Constrain content width on top-level scroll children */
+  .scroll > .bt,
+  .scroll > .sb,
+  .scroll > .seg,
+  .scroll > .gr,
+  .scroll > .list,
+  .scroll > .qa,
+  .scroll > .stats,
+  .scroll > .cs-bar,
+  .scroll > #ldHome,
+  .scroll > #ldDetail,
+  .scroll > #cardPv,
+  .scroll > #rcList,
+  .scroll > #ctList,
+  .scroll > #ldPipe,
+  .scroll > #ldCats{
+    max-width:760px;margin-left:auto;margin-right:auto
+  }
+  .scroll > .bt{padding-top:24px}
+
+  /* Inside ldHome/ldDetail (nested), constrain too */
+  #ldHome > .seg,#ldHome > #ldPipe,#ldHome > #ldCats,
+  #ldDetail > .bt,#ldDetail > .sb,#ldDetail > .cs-bar,#ldDetail > .list,
+  #ldDetail > .empty,#ldDetail > .divider{
+    max-width:760px;margin-left:auto;margin-right:auto
+  }
+
+  /* Keypad: keep narrow & centered as a phone-like column */
+  #p-keypad .scroll{align-items:center;justify-content:flex-start}
+  #p-keypad .kp-display,#p-keypad .kp-match,
+  #p-keypad .kp-grid,#p-keypad .kp-act{width:100%;max-width:380px;align-self:center}
+  #p-keypad .scroll{padding-top:32px}
+
+  /* Section letters in contacts: align with centered list */
+  .scroll .sec-l{max-width:760px;margin-left:auto;margin-right:auto;background:transparent}
+
+  /* Two-column categories grid → stay 2-col but bigger cards */
+  .cat-g{grid-template-columns:repeat(3,1fr)}
+
+  /* Top nav bars per page: more substantial on desktop */
+  .nav{height:56px;padding:0 24px;background:transparent;border-bottom:0.5px solid var(--sep)}
+  .nav h1{font-size:15px}
+  .nav-l,.nav-r{top:14px}
+  .nav-l{left:18px}.nav-r{right:18px}
+
+  /* Modal: wider and centered */
+  .modal{max-width:560px !important;max-height:85vh}
+
+  /* Bigger row click targets feel right on desktop */
+  .row{min-height:48px}
+  .row .t{font-size:16px}
+  .row:hover{background:rgba(255,255,255,0.04)}
+
+  /* Hover affordances */
+  .cat-c{cursor:pointer;transition:transform .1s,background .1s}
+  .cat-c:hover{background:var(--bg3)}
+  .k:hover{background:#3a3a3d}
+  .qa-b:hover{background:var(--bg3)}
+  .chip{cursor:pointer}
+  .chip:hover{filter:brightness(1.15)}
+
+  /* Bigger business card on desktop */
+  .bc{max-width:560px;margin-left:auto;margin-right:auto;padding:32px;min-height:240px}
+  .bc-name{font-size:32px}
+
+  /* Hide bottom safe-area padding (no notch on desktop) */
+  :root{--tabh:0;--sb:0px}
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+<div class="pages">
+
+<!-- ============ KEYPAD ============ -->
+<section class="page on" id="p-keypad">
+  <div class="scroll" style="display:flex;flex-direction:column;padding-top:var(--st)">
+    <div class="kp-display"><div class="kp-num" id="dialed"></div></div>
+    <div class="kp-match" id="kpMatch"></div>
+    <div class="kp-grid">
+      <button class="k" data-k="1"><span class="num">1</span><span class="lt">&nbsp;</span></button>
+      <button class="k" data-k="2"><span class="num">2</span><span class="lt">ABC</span></button>
+      <button class="k" data-k="3"><span class="num">3</span><span class="lt">DEF</span></button>
+      <button class="k" data-k="4"><span class="num">4</span><span class="lt">GHI</span></button>
+      <button class="k" data-k="5"><span class="num">5</span><span class="lt">JKL</span></button>
+      <button class="k" data-k="6"><span class="num">6</span><span class="lt">MNO</span></button>
+      <button class="k" data-k="7"><span class="num">7</span><span class="lt">PQRS</span></button>
+      <button class="k" data-k="8"><span class="num">8</span><span class="lt">TUV</span></button>
+      <button class="k" data-k="9"><span class="num">9</span><span class="lt">WXYZ</span></button>
+      <button class="k s" data-k="*"><span class="num">*</span><span class="lt">&nbsp;</span></button>
+      <button class="k" data-k="0" data-long="+"><span class="num">0</span><span class="lt">+</span></button>
+      <button class="k h" data-k="#"><span class="num">#</span><span class="lt">&nbsp;</span></button>
+    </div>
+    <div class="kp-act">
+      <button class="kp-add" id="kpAdd">Add Number</button>
+      <button class="call dis" id="callBtn" aria-label="Call">
+        <svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
+      </button>
+      <div class="kp-bk" id="kpBack">
+        <button aria-label="Backspace">
+          <svg viewBox="0 0 24 24"><path d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 12.59L17.59 17 14 13.41 10.41 17 9 15.59 12.59 12 9 8.41 10.41 7 14 10.59 17.59 7 19 8.41 15.41 12 19 15.59z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RECENTS ============ -->
+<section class="page" id="p-recents">
+  <div class="nav nb">
+    <span class="nav-l"><button class="nb-btn" id="rcClear">Clear</button></span>
+    <h1>Recents</h1>
+    <span class="nav-r"><button class="nb-btn" id="rcEdit">Edit</button></span>
+  </div>
+  <div class="scroll">
+    <h1 class="bt">Recents</h1>
+    <div id="rcList"></div>
+  </div>
+</section>
+
+<!-- ============ CONTACTS ============ -->
+<section class="page" id="p-contacts">
+  <div class="nav nb">
+    <span class="nav-l"><button class="nb-btn" id="ctImport">Import</button></span>
+    <h1>Contacts</h1>
+    <span class="nav-r"><button class="nb-btn bold" id="ctAdd" style="font-size:24px;line-height:1">＋</button></span>
+  </div>
+  <div class="scroll">
+    <h1 class="bt">Contacts</h1>
+    <div class="sb" id="ctSb">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="ctSearch" placeholder="Search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="clr" id="ctClr" aria-label="Clear">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    <div id="ctList"></div>
+  </div>
+  <input type="file" id="csvIn" accept=".csv,text/csv">
+</section>
+
+<!-- ============ LEADS ============ -->
+<section class="page" id="p-leads">
+  <div class="nav nb">
+    <h1 id="ldNavTitle">Leads</h1>
+    <span class="nav-l"><button class="nb-btn" id="ldBack" style="display:none">‹ Back</button></span>
+    <span class="nav-r"><button class="nb-btn" id="ldExport">Export</button></span>
+  </div>
+  <div class="scroll" id="ldScroll">
+    <div id="ldHome">
+      <h1 class="bt">Leads</h1>
+      <div class="seg">
+        <button class="on" data-seg="pipe">Pipeline</button>
+        <button data-seg="cats">Categories</button>
+      </div>
+      <div id="ldPipe"></div>
+      <div id="ldCats" style="display:none"></div>
+    </div>
+    <div id="ldDetail" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ============ MORE / CARD ============ -->
+<section class="page" id="p-more">
+  <div class="nav nb">
+    <h1>My Card</h1>
+    <span class="nav-r"><button class="nb-btn" id="cardEdit">Edit</button></span>
+  </div>
+  <div class="scroll">
+    <h1 class="bt">My Card</h1>
+    <div id="cardPv"></div>
+    <div class="qa" style="margin-top:8px">
+      <button class="qa-b" id="shareBtn">
+        <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+        <span class="l">Share</span>
+      </button>
+      <button class="qa-b" id="vcardBtn">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .89-2 2v14c0 1.11.89 2 2 2h14c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zM9 8c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H3v-1c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1zm3.85-4h-1.39c-.16-.5-.45-.95-.86-1.32 1.92.41 4.18 1.39 4.18 2.82V20h-2v-2c0-.62-.62-1.34-1.93-2zM14 12c1.66 0 3-1.34 3-3s-1.34-3-3-3c-.32 0-.63.05-.91.14.57.81.91 1.79.91 2.86s-.34 2.05-.91 2.86c.28.09.59.14.91.14z"/></svg>
+        <span class="l">vCard</span>
+      </button>
+      <button class="qa-b" id="qrBtn">
+        <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm8-12v8h8V3h-8zm6 6h-4V5h4v4zm0 6h2v2h-2v-2zm-6 0h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm2 2h2v2h-2v-2zm0-4h2v2h-2v-2zm-4 0h2v2h-2v-2zm-2 4h2v2h-2v-2z"/></svg>
+        <span class="l">QR Code</span>
+      </button>
+      <button class="qa-b" id="installBtn">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        <span class="l">Install</span>
+      </button>
+    </div>
+
+    <div class="gr">
+      <div class="gr-h">Quick Contact</div>
+      <div class="list">
+        <a href="tel:+15706777971" class="row">
+          <div class="ico gn"><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg></div>
+          <div class="body"><span class="t">Call NEPA-PRO</span><span class="s">(570) 677-7971</span></div>
+          <span class="meta"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </a>
+        <a href="sms:+15706777971" class="row">
+          <div class="ico gn"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg></div>
+          <div class="body"><span class="t">Text Message</span><span class="s">SMS to (570) 677-7971</span></div>
+          <span class="meta"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </a>
+        <a href="mailto:service@nepa-pro.com" class="row">
+          <div class="ico bl"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+          <div class="body"><span class="t">Email</span><span class="s">service@nepa-pro.com</span></div>
+          <span class="meta"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="gr">
+      <div class="gr-h">Data</div>
+      <div class="list">
+        <button class="row" id="ctImport2">
+          <div class="ico pu"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg></div>
+          <div class="body"><span class="t">Import CSV</span><span class="s">Add contacts or fill a category</span></div>
+          <span class="meta"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </button>
+        <button class="row" id="ctExport">
+          <div class="ico or"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></div>
+          <div class="body"><span class="t">Export Contacts</span><span class="s">CSV download</span></div>
+          <span class="meta"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </button>
+        <button class="row" id="logExport">
+          <div class="ico bl"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div>
+          <div class="body"><span class="t">Export Call Log</span><span class="s">CSV download</span></div>
+          <span class="meta"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </button>
+        <button class="row" id="resetBtn">
+          <div class="ico rd"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+          <div class="body"><span class="t danger">Reset All Data</span><span class="s">Cannot be undone</span></div>
+        </button>
+      </div>
+    </div>
+
+    <div class="gr">
+      <div class="gr-h">About</div>
+      <div class="list">
+        <div class="row">
+          <div class="body"><span class="t">NEPA-PRO Dialer</span><span class="s">v1.0.0 · Veteran Owned & Operated</span></div>
+        </div>
+        <div class="row">
+          <div class="body"><span class="t">Storage</span><span class="s" id="storeInfo">—</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+  </div>
+</section>
+
+</div><!-- /pages -->
+
+<!-- Tab Bar -->
+<nav class="tabs" role="tablist">
+  <button class="tab on" data-tab="keypad">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="12" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg>
+    <span class="l">Keypad</span>
+  </button>
+  <button class="tab" data-tab="recents">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+    <span class="l">Recents</span>
+  </button>
+  <button class="tab" data-tab="contacts">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    <span class="l">Contacts</span>
+  </button>
+  <button class="tab" data-tab="leads">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+    <span class="l">Leads</span>
+  </button>
+  <button class="tab" data-tab="more">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+    <span class="l">My Card</span>
+  </button>
+</nav>
+
+</div><!-- /app -->
+
+<!-- Modal -->
+<div class="mb" id="modal">
+  <div class="modal">
+    <div class="m-h">
+      <button class="nb-btn" id="mCancel">Cancel</button>
+      <div class="m-t" id="mTitle">Title</div>
+      <button class="nb-btn bold" id="mSave">Save</button>
+    </div>
+    <div class="m-b" id="mBody"></div>
+  </div>
+</div>
+
+<!-- Action Sheet -->
+<div class="as" id="asheet">
+  <div class="as-i">
+    <div class="as-g" id="asBtns"></div>
+    <div class="as-g"><button class="as-b cn" id="asCancel">Cancel</button></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Lead-list bootstrap: fetch manifest, then load each lead file. Falls back to static load if fetch fails (file:// preview). -->
+<script>
+window.LEADS = window.LEADS || {};
+window.__LEAD_BOOT__ = (async function(){
+  try {
+    const res = await fetch('./leads-manifest.json', {cache:'no-cache'});
+    if (!res.ok) throw new Error('manifest fetch '+res.status);
+    const m = await res.json();
+    window.__LEAD_MANIFEST__ = m;
+    await Promise.all((m.categories||[]).map(c => new Promise(resolve => {
+      const s = document.createElement('script');
+      s.src = './' + c.file;
+      s.async = false;
+      s.onload  = () => resolve();
+      s.onerror = () => { console.warn('Lead file failed:', c.file); resolve(); };
+      document.head.appendChild(s);
+    })));
+  } catch (e) {
+    console.warn('Manifest unavailable, falling back to static lead files:', e.message);
+    // Fallback: load known leads files directly
+    await new Promise(resolve => {
+      const s = document.createElement('script');
+      s.src = './leads-pizza.js';
+      s.onload = s.onerror = () => resolve();
+      document.head.appendChild(s);
+    });
+  }
+})();
+</script>
+
+<!-- App script -->
+<script src="./app.js"></script>
+
+</body>
+</html>

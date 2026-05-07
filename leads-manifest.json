@@ -1,0 +1,26 @@
+{
+  "lastUpdated": "2026-05-07T22:25:30Z",
+  "source": "https://docs.google.com/spreadsheets/d/1puRZ_27LA7CurTKQMxrCKU7H3AZ-1o_5NMfRLKQoc-Y/edit",
+  "categories": [
+    {
+      "id": "pizza",
+      "count": 246,
+      "file": "leads-pizza.js"
+    },
+    {
+      "id": "nail-salons",
+      "count": 2924,
+      "file": "leads-nail-salons.js"
+    },
+    {
+      "id": "hair",
+      "count": 3064,
+      "file": "leads-hair.js"
+    },
+    {
+      "id": "barber",
+      "count": 2914,
+      "file": "leads-barber.js"
+    }
+  ]
+}

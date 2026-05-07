@@ -1,0 +1,16 @@
+{
+  "_comment": "Maps Google Sheet tabs (by gid) to dialer categories. To add a new category, append a new entry. The sync script auto-generates leads-{category}.js files and updates leads-manifest.json.",
+  "spreadsheetId": "1puRZ_27LA7CurTKQMxrCKU7H3AZ-1o_5NMfRLKQoc-Y",
+  "tabs": [
+    {
+      "category": "nail-salons",
+      "gid": "387501211",
+      "label": "Nails"
+    }
+  ],
+  "_categories_available": [
+    "pizza", "nail-salons", "hair", "barber", "lashes",
+    "roofers", "plumbers", "hvac", "electricians", "handyman",
+    "pet-services", "home-services", "food-makers"
+  ]
+}
