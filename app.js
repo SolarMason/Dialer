@@ -1491,17 +1491,42 @@ $$('#docsSeg button').forEach(b => {
 function openDoc(docId){
   const d = (window.DOCS||[]).find(x => x.id === docId);
   if (!d){ toast('Doc not found'); return; }
+  const pdfUrl = `./docs/${d.id}.pdf`;
   $('#mTitle').textContent = '';
   $('#mCancel').textContent = 'Close';
   $('#mSave').textContent = 'Print';
   $('#mSave').style.color = 'var(--link)';
   $('#mSave').style.fontWeight = '600';
   $('#mSave').style.pointerEvents = 'auto';
-  $('#mBody').innerHTML = `<div class="doc">${d.body}</div>`;
-  $('#mSave').onclick = () => window.print();
+  // Small unobtrusive PDF link at top + the doc body
+  $('#mBody').innerHTML = `
+    <div style="display:flex;justify-content:flex-end;margin:-4px 0 8px;font-size:12px">
+      <a href="${pdfUrl}" target="_blank" rel="noopener" download="${esc(d.id)}.pdf"
+         style="color:var(--t2);text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:6px;border:0.5px solid var(--sep)"
+         onmouseover="this.style.color='var(--link)';this.style.borderColor='var(--link)'"
+         onmouseout="this.style.color='var(--t2)';this.style.borderColor='var(--sep)'">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        PDF
+      </a>
+    </div>
+    <div class="doc">${d.body}</div>
+  `;
+  // Print button: open the pre-built PDF in a new tab. Browsers auto-open
+  // their print dialog from there with a much higher-fidelity rendering than
+  // CSS @media print can produce. Falls back to window.print() if the PDF
+  // file isn't reachable (e.g. single-file preview mode).
+  $('#mSave').onclick = async () => {
+    try {
+      const res = await fetch(pdfUrl, { method: 'HEAD' });
+      if (res.ok) {
+        window.open(pdfUrl, '_blank', 'noopener');
+        return;
+      }
+    } catch (_e) { /* fetch failure → fall back */ }
+    window.print();
+  };
   $('#mCancel').onclick = closeModal;
   showModal();
-  // Scroll to top
   setTimeout(() => { const sc = $('#mBody'); if (sc) sc.scrollTop = 0; }, 50);
 }
 

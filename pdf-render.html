@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NEPA-PRO — Sales Resources</title>
+<style>
+/* ============================================================
+   PRINT-OPTIMIZED, LOW-INK STYLESHEET
+   White background, dark text, minimal color washes.
+   Designed for laser/inkjet printing on Letter paper.
+   ============================================================ */
+
+@page {
+  size: Letter;
+  margin: 0.55in 0.65in 0.6in 0.65in;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+}
+
+.doc { max-width: none; padding: 0; margin: 0; }
+
+/* ---- Header (replaces dark navy block with clean accent) ---- */
+.doc-header {
+  background: #fff !important;
+  color: #0a2540;
+  padding: 0 0 10px;
+  margin: 0 0 14px;
+  border: none;
+  border-top: 4px solid #28A848;
+  border-bottom: 1px solid #c0c0c0;
+  border-radius: 0;
+  position: relative;
+  overflow: visible;
+  padding-top: 12px;
+}
+.doc-header::after { display: none !important; }
+
+.doc-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  position: static;
+  z-index: auto;
+}
+.doc-logo {
+  width: 32px; height: 32px;
+  border-radius: 7px;
+  background: #0a2540;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: none;
+}
+.doc-logo svg { width: 24px; height: 24px; }
+.doc-org {
+  font-size: 9.5pt;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  color: #0a2540;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.doc-tag {
+  font-size: 8pt;
+  color: #555;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+.doc-title {
+  font-size: 20pt;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+  color: #0a2540;
+  margin: 6px 0 2px;
+}
+.doc-meta {
+  font-size: 7.5pt;
+  color: #666;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ---- Sections & headings ---- */
+.doc-section { margin: 14px 0; page-break-inside: avoid; }
+.doc-h2 {
+  font-size: 13pt;
+  font-weight: 700;
+  color: #0a2540;
+  margin: 0 0 8px;
+  padding-bottom: 3px;
+  border-bottom: 1.5px solid #28A848;
+  display: inline-block;
+  letter-spacing: -0.2px;
+  page-break-after: avoid;
+}
+.doc-h3 {
+  font-size: 11pt;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 10px 0 4px;
+  page-break-after: avoid;
+}
+
+/* ---- Body text ---- */
+.doc-p {
+  font-size: 10.5pt;
+  color: #1a1a1a;
+  margin: 5px 0;
+  line-height: 1.5;
+}
+.doc-p.muted, p.muted { color: #666; }
+.doc-ul, .doc-ol { margin: 6px 0; padding-left: 22px; }
+.doc-ul li, .doc-ol li {
+  font-size: 10.5pt;
+  margin: 3px 0;
+  line-height: 1.5;
+}
+.doc-p strong, .doc-ul strong, .doc-ol strong { font-weight: 700; color: #0a2540; }
+
+/* ---- Callouts: left bar only, no fill ---- */
+.doc-callout {
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-left: 3px solid #999;
+  background: #fff !important;
+  font-size: 10pt;
+  color: #1a1a1a;
+}
+.doc-callout strong { font-weight: 700; }
+.doc-info    { border-left-color: #0A84FF; }
+.doc-success { border-left-color: #28A848; }
+.doc-warn    { border-left-color: #D67D00; }
+.doc-danger  { border-left-color: #C92020; }
+
+/* ---- Pull quotes / stats: minimal box ---- */
+.doc-pull {
+  margin: 10px 0;
+  padding: 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 5px;
+  text-align: center;
+  background: #fff !important;
+  page-break-inside: avoid;
+}
+.doc-pull-num {
+  font-size: 20pt;
+  font-weight: 800;
+  color: #28A848;
+  letter-spacing: -0.8px;
+  line-height: 1;
+}
+.doc-pull-lbl {
+  font-size: 9pt;
+  color: #555;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+.doc-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 10px 0;
+}
+.doc-stats .doc-pull { margin: 0; padding: 10px; }
+.doc-stats .doc-pull-num { font-size: 15pt; }
+.doc-stats .doc-pull-lbl { font-size: 8.5pt; }
+
+/* ---- Script blocks: light gray, properly formatted ---- */
+.doc-script {
+  background: #f7f7f7 !important;
+  border: 1px solid #e0e0e0;
+  padding: 10px 12px;
+  margin: 8px 0;
+  font-size: 10pt;
+  line-height: 1.55;
+  border-radius: 4px;
+  page-break-inside: avoid;
+}
+.doc-script-line {
+  margin: 6px 0;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 10px;
+}
+.doc-script-actor {
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #28A848;
+  text-transform: uppercase;
+  padding-top: 1px;
+}
+.doc-script-actor.them { color: #B85A00; }
+.doc-script-actor.note { color: #666; }
+.doc-script-text { color: #1a1a1a; }
+.doc-script-text em { color: #555; font-style: normal; font-size: 9pt; }
+.doc-script-text strong { color: #0a2540; }
+
+/* ---- Quotes ---- */
+.doc-quote {
+  padding: 6px 12px;
+  border-left: 3px solid #6B3FA0;
+  background: #fff !important;
+  font-style: italic;
+  font-size: 10pt;
+  color: #1a1a1a;
+  margin: 8px 0;
+}
+
+/* ---- Checklists ---- */
+.doc-checklist { list-style: none; padding: 0; margin: 8px 0; }
+.doc-checklist li {
+  padding: 4px 0 4px 22px;
+  position: relative;
+  font-size: 10.5pt;
+  line-height: 1.5;
+}
+.doc-checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid #28A848;
+  border-radius: 2px;
+}
+.doc-checklist li.done::before {
+  background: #28A848;
+  border-color: #28A848;
+}
+
+/* ---- Tables ---- */
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 10pt;
+  page-break-inside: auto;
+}
+.doc-table th, .doc-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  vertical-align: top;
+}
+.doc-table th {
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  font-size: 8.5pt;
+  letter-spacing: 0.4px;
+  border-bottom: 1.5px solid #999;
+}
+.doc-table td strong { color: #0a2540; }
+.doc-table tr { page-break-inside: avoid; }
+
+/* ---- Table of contents ---- */
+.doc-toc {
+  background: #fff !important;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin: 10px 0;
+  page-break-inside: avoid;
+}
+.doc-toc-title {
+  font-size: 8pt;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.doc-toc a {
+  display: block;
+  padding: 2px 0;
+  color: #1a1a1a;
+  font-size: 10pt;
+  text-decoration: none;
+}
+
+/* ---- Footer ---- */
+.doc-footer {
+  margin-top: 22px;
+  padding-top: 10px;
+  border-top: 1px solid #ccc;
+  font-size: 8pt;
+  color: #666;
+  text-align: center;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+}
+.doc-footer strong { color: #0a2540; letter-spacing: 0.5px; font-weight: 700; }
+
+/* ---- Page break controls ---- */
+h1, h2, h3 { page-break-after: avoid; }
+.doc-section { page-break-inside: avoid; }
+.doc-script, .doc-pull { page-break-inside: avoid; }
+.doc-table { page-break-inside: auto; }
+
+/* Hide any web-only chrome that might leak through */
+.tabs, .nav, #mTitle, #mCancel, #mSave { display: none !important; }
+</style>
+</head>
+<body>
+<div class="doc" id="pdf-content"></div>
+<script src="docs.js"></script>
+<script>
+(function () {
+  function render() {
+    var id = (location.hash || '').slice(1);
+    var el = document.getElementById('pdf-content');
+    if (!el) return;
+    if (!id || id === '__list') { el.innerHTML = ''; return; }
+    if (!window.DOCS) {
+      el.innerHTML = '<p>docs.js failed to load.</p>';
+      return;
+    }
+    var doc = window.DOCS.find(function (d) { return d.id === id; });
+    if (!doc) {
+      el.innerHTML = '<p>Doc not found: ' + id + '</p>';
+      return;
+    }
+    document.title = doc.title + ' — NEPA-PRO';
+    el.innerHTML = doc.body;
+  }
+  window.addEventListener('hashchange', render);
+  // Also re-render on demand from the PDF generator
+  window.__renderDoc = render;
+  render();
+})();
+</script>
+</body>
+</html>
