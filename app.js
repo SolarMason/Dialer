@@ -63,6 +63,27 @@ function avColor(seed){
   let h=0; for (let i=0;i<(seed||'').length;i++) h=(h*31+seed.charCodeAt(i))>>>0;
   return colors[h%colors.length];
 }
+
+/* ========== Status / outreach taxonomy ========== */
+// Outreach methods (how we last touched them) + pipeline stages (where they are in funnel)
+const OUTREACH_STATUSES = ['spoke','lvm','texted','emailed','direct_mailed'];
+const PIPELINE_STATUSES = ['qualified','customer','lost'];
+const ALL_STATUSES      = ['', ...OUTREACH_STATUSES, ...PIPELINE_STATUSES];
+const STATUS_LABELS = {
+  '':              'New',
+  'spoke':         'Spoke',
+  'lvm':           'LVM',
+  'texted':        'Texted',
+  'emailed':       'Emailed',
+  'direct_mailed': 'Direct Mailed',
+  'qualified':     'Qualified',
+  'customer':      'Customer',
+  'lost':          'Lost',
+  // Legacy
+  'contacted':     'Contacted',
+  'new':           'New'
+};
+const labelOf = s => STATUS_LABELS[s] || s;
 function vibrate(ms){ try{ navigator.vibrate && navigator.vibrate(ms||10) }catch(e){} }
 function toast(msg, ms){
   const t = $('#toast'); t.textContent = msg; t.classList.add('on');
@@ -91,10 +112,11 @@ function loadState(){
     s.calls = s.calls || [];
     s.card = Object.assign({}, DEFAULT_CARD, s.card||{});
     s.leadState = s.leadState || {}; // per-lead-key: {status, lastContacted, hidden}
+    s.dnc = s.dnc || {};             // {phoneDigits: {addedAt, reason, source, name}}
     s.settings = s.settings || {autoLog:true};
     return s;
   }catch(e){
-    return {contacts:[], calls:[], card:Object.assign({},DEFAULT_CARD), leadState:{}, settings:{autoLog:true}};
+    return {contacts:[], calls:[], card:Object.assign({},DEFAULT_CARD), leadState:{}, dnc:{}, settings:{autoLog:true}};
   }
 }
 function save(){
@@ -102,8 +124,29 @@ function save(){
   catch(e){ toast('Storage error: '+e.message); }
 }
 
+/* ========== DO NOT CALL (TCPA compliance) ========== */
+function isDNC(phone){
+  const d = digits(phone);
+  return !!(d && state.dnc[d]);
+}
+function addDNC(phone, info){
+  const d = digits(phone);
+  if (!d) return false;
+  state.dnc[d] = Object.assign({addedAt: Date.now(), reason:'', source:'manual', name:''}, info||{});
+  save();
+  return true;
+}
+function removeDNC(phone){
+  const d = digits(phone);
+  if (!d) return;
+  delete state.dnc[d];
+  save();
+}
+function dncCount(){ return Object.keys(state.dnc).length; }
+
+
 /* ========== Tabs ========== */
-let activeTab = 'keypad';
+let activeTab = 'leads';
 function switchTab(t){
   if (t===activeTab) return;
   activeTab = t;
@@ -112,7 +155,7 @@ function switchTab(t){
   if (t==='recents')  renderRecents();
   if (t==='contacts') renderContacts();
   if (t==='leads')    renderLeads();
-  if (t==='more')     {renderCard(); updateStorageInfo();}
+  if (t==='more')     {renderCard(); updateStorageInfo(); renderDocs();}
 }
 $$('.tab').forEach(b=> b.addEventListener('click', ()=>{ vibrate(8); switchTab(b.dataset.tab); }));
 
@@ -207,19 +250,21 @@ document.addEventListener('keydown', e=>{
 function liveMatch(){
   if (!dialed || dialed.length<3){ matchEl.innerHTML=''; return; }
   const d = digits(dialed);
-  // Search saved contacts first
+  // Check DNC first — most important
+  const dncBanner = isDNC(d) ? '<span style="color:var(--red);font-weight:600">🚫 Do Not Call · </span>' : '';
+  // Search saved contacts
   const c = findContactByPhone(d);
   if (c){
-    matchEl.innerHTML = `<strong>${esc(fullName(c)||c.company||'')}</strong>${c.company && fullName(c)?' · '+esc(c.company):''}`;
+    matchEl.innerHTML = dncBanner + `<strong>${esc(fullName(c)||c.company||'')}</strong>${c.company && fullName(c)?' · '+esc(c.company):''}`;
     return;
   }
   // Search lead lists
   for (const cat of CATS){
     const list = (window.LEADS && window.LEADS[cat.id]) || [];
     const m = list.find(l=> l.p && l.p.endsWith(d) || (d.length>=10 && l.p===d));
-    if (m){ matchEl.innerHTML = `<strong>${esc(m.n)}</strong> · ${cat.icon} ${esc(cat.name)}`; return; }
+    if (m){ matchEl.innerHTML = dncBanner + `<strong>${esc(m.n)}</strong> · ${cat.icon} ${esc(cat.name)}`; return; }
   }
-  matchEl.innerHTML = '<span class="muted">Add to Contacts</span>';
+  matchEl.innerHTML = dncBanner + (isDNC(d) ? '' : '<span class="muted">Add to Contacts</span>');
 }
 
 // Call button & Add Number
@@ -240,8 +285,14 @@ function fullName(c){ return [c.firstName, c.lastName].filter(Boolean).join(' ')
 function placeCall(num){
   const d = digits(num);
   if (!d) return;
+  if (isDNC(d)){
+    showDNCWarning(d);
+    return;
+  }
+  doPlaceCall(d);
+}
+function doPlaceCall(d){
   const tel = (d.length>=10 && d[0]!=='1' ? '+1' : '+') + d;
-  // log
   if (state.settings.autoLog!==false){
     const c = findContactByPhone(d);
     state.calls.unshift({
@@ -257,8 +308,42 @@ function placeCall(num){
     save();
   }
   vibrate(15);
-  // open dialer
   window.location.href = 'tel:'+tel;
+}
+
+function showDNCWarning(d){
+  const dnc = state.dnc[d] || {};
+  $('#mTitle').textContent = '';
+  $('#mCancel').textContent = 'Cancel';
+  $('#mSave').textContent = ''; $('#mSave').style.pointerEvents='none'; $('#mSave').style.color='transparent';
+  $('#mBody').innerHTML = `
+    <div style="text-align:center;padding:8px 4px">
+      <div style="font-size:64px;margin-bottom:4px">🚫</div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--red);margin-bottom:6px">Do Not Call</h2>
+      <p style="color:var(--t1);font-size:18px;font-weight:600">${fmtPhone(d)}</p>
+      ${dnc.name ? `<p style="color:var(--t2);font-size:15px;margin-top:2px">${esc(dnc.name)}</p>` : ''}
+      ${dnc.addedAt ? `<p class="muted" style="font-size:13px;margin-top:8px">Added ${new Date(dnc.addedAt).toLocaleDateString()}${dnc.source && dnc.source!=='manual' ? ' · from '+esc(dnc.source) : ''}</p>` : ''}
+      ${dnc.reason ? `<p class="muted" style="font-size:13px;margin-top:4px">Reason: ${esc(dnc.reason)}</p>` : ''}
+      <div style="background:rgba(255,69,58,0.10);border:1px solid rgba(255,69,58,0.35);border-radius:12px;padding:14px;margin-top:18px;text-align:left">
+        <p style="font-size:13px;line-height:1.5;color:var(--t1)"><strong style="color:var(--red)">⚠️ TCPA notice:</strong> calling a number on your internal Do Not Call list violates federal law. Penalties run up to $1,500 per call.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">
+        <button class="btn btn-s" onclick="window.__removeDnc('${d}')">Remove from DNC</button>
+        <button class="btn" style="background:var(--red);color:#fff" onclick="window.__forceCall('${d}')">Call Anyway</button>
+      </div>
+    </div>
+  `;
+  $('#mCancel').onclick = closeModal;
+  showModal();
+}
+window.__forceCall = (d)=>{ closeModal(); doPlaceCall(d); };
+window.__removeDnc = (d)=>{ removeDNC(d); closeModal(); toast('Removed from Do Not Call'); refreshActiveView(); };
+
+function refreshActiveView(){
+  if (activeTab==='leads' && ldCat) renderCategoryDetail();
+  else if (activeTab==='leads') renderLeads();
+  else if (activeTab==='contacts') renderContacts();
+  else if (activeTab==='recents') renderRecents();
 }
 
 /* ========== RECENTS ========== */
@@ -375,13 +460,16 @@ function renderContacts(){
     <div class="sec-l">${L}</div>
     <div class="list">${groups[L].map(c=>{
       const n = fullName(c)||c.company||'?';
-      return `<button class="row" data-cid="${c.id}">
-        <div class="av" style="background:${avColor(c.id)}">${initials(n)}</div>
+      const dnc = isDNC(c.phone);
+      return `<button class="row" data-cid="${c.id}" ${dnc?'style="opacity:0.6"':''}>
+        <div class="av" style="background:${dnc?'var(--red)':avColor(c.id)}">${initials(n)}</div>
         <div class="body">
           <span class="t">${esc(n)}</span>
           ${c.company && fullName(c) ? `<span class="s">${esc(c.company)}</span>` : ''}
         </div>
-        ${c.status?`<span class="bdg bdg-${c.status}" style="margin-right:8px">${esc(c.status)}</span>`:''}
+        ${dnc
+          ? '<span class="bdg" style="background:rgba(255,69,58,0.20);color:var(--red);margin-right:8px">🚫 DNC</span>'
+          : c.status?`<span class="bdg bdg-${c.status}" style="margin-right:8px">${esc(labelOf(c.status))}</span>`:''}
         <span class="meta"><svg class="chev" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span>
       </button>`;
     }).join('')}</div>
@@ -409,7 +497,7 @@ function openContactView(c){
       <h1>${esc(n||'(No name)')}</h1>
       ${c.title?`<div class="sub">${esc(c.title)}</div>`:''}
       ${c.company && fullName(c) ?`<div class="sub">${esc(c.company)}</div>`:''}
-      ${c.status?`<div style="margin-top:8px"><span class="bdg bdg-${c.status}">${esc(c.status)}</span></div>`:''}
+      ${c.status?`<div style="margin-top:8px"><span class="bdg bdg-${c.status}">${esc(labelOf(c.status))}</span></div>`:''}
     </div>
     <div class="qa">
       <button class="qa-b" ${!c.phone?'disabled':''} onclick="window.__call('${digits(c.phone)}')"><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg><span class="l">Call</span></button>
@@ -427,8 +515,29 @@ function openContactView(c){
       ${c.notes ? `<div class="row" style="display:block"><span class="s" style="font-size:13px">notes</span><div style="margin-top:4px;white-space:pre-wrap">${esc(c.notes)}</div></div>`:''}
       ${c.lastContacted ? `<div class="row"><div class="body"><span class="s" style="font-size:13px">last contacted</span><span class="t">${new Date(c.lastContacted).toLocaleString()}</span></div></div>`:''}
     </div>
-    <button class="btn btn-s" style="width:100%;margin-top:16px" onclick="window.__cycleStatus('${c.id}')">Status: ${esc(c.status||'new')} · tap to change</button>
-    <button class="btn" style="width:100%;margin-top:8px;color:var(--red)" onclick="window.__delContact('${c.id}')">Delete Contact</button>
+    ${isDNC(c.phone) ? `<div style="background:rgba(255,69,58,0.10);border:1px solid rgba(255,69,58,0.35);border-radius:12px;padding:12px;margin-top:12px;text-align:center"><strong style="color:var(--red)">🚫 On Do Not Call list</strong>${state.dnc[digits(c.phone)].reason ? `<div class="muted" style="font-size:13px;margin-top:4px">${esc(state.dnc[digits(c.phone)].reason)}</div>`:''}</div>` : ''}
+    <div class="gr-h" style="padding:14px 0 8px">Outreach — how we touched them</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+      <button class="btn btn-s ${c.status==='spoke'?'btn-p':''}" onclick="window.__contactStatus('${c.id}','spoke')">Spoke</button>
+      <button class="btn btn-s ${c.status==='lvm'?'btn-p':''}" onclick="window.__contactStatus('${c.id}','lvm')">LVM</button>
+      <button class="btn btn-s ${c.status==='texted'?'btn-p':''}" onclick="window.__contactStatus('${c.id}','texted')">Texted</button>
+      <button class="btn btn-s ${c.status==='emailed'?'btn-p':''}" onclick="window.__contactStatus('${c.id}','emailed')">Emailed</button>
+      <button class="btn btn-s ${c.status==='direct_mailed'?'btn-p':''}" style="grid-column:span 2" onclick="window.__contactStatus('${c.id}','direct_mailed')">Direct Mailed</button>
+    </div>
+    <div class="gr-h" style="padding:14px 0 8px">Pipeline stage</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <button class="btn btn-s ${c.status==='qualified'?'btn-p':''}" onclick="window.__contactStatus('${c.id}','qualified')">Qualified</button>
+      <button class="btn btn-g" style="${c.status!=='customer'?'background:rgba(52,199,89,0.15);color:var(--green)':''}" onclick="window.__contactStatus('${c.id}','customer')">Customer</button>
+      <button class="btn btn-s ${c.status==='lost'?'btn-p':''}" onclick="window.__contactStatus('${c.id}','lost')">Lost</button>
+    </div>
+    ${c.status ? `<button class="btn btn-s" style="width:100%;margin-top:10px" onclick="window.__contactStatus('${c.id}','')">Clear Status</button>` : ''}
+    <div style="margin-top:18px;padding-top:14px;border-top:0.5px solid var(--sep)">
+      <div class="gr-h" style="padding:0 0 8px">Compliance</div>
+      ${isDNC(c.phone)
+        ? `<button class="btn" style="width:100%;background:rgba(255,69,58,0.15);color:var(--red);border:1px solid rgba(255,69,58,0.35)" onclick="window.__unmarkDnc('${esc(digits(c.phone))}')">✓ Remove from Do Not Call</button>`
+        : `<button class="btn" style="width:100%;background:rgba(255,69,58,0.10);color:var(--red);border:1px solid rgba(255,69,58,0.30)" ${!c.phone?'disabled':''} onclick="window.__markDnc('','','${esc(c.phone||'')}')">🚫 Mark Do Not Call</button>`}
+    </div>
+    <button class="btn" style="width:100%;margin-top:14px;color:var(--red)" onclick="window.__delContact('${c.id}')">Delete Contact</button>
   `;
   $('#mSave').onclick = ()=>{ closeModal(); openContactEdit(c); };
   $('#mCancel').onclick = closeModal;
@@ -436,6 +545,7 @@ function openContactView(c){
 }
 
 window.__call = placeCall;
+window.__openDoc = (id) => { closeModal(); setTimeout(() => openDoc(id), 100); };
 window.__delContact = (id)=>{
   showActionSheet([
     {label:'Delete Contact', action:()=>{
@@ -445,14 +555,19 @@ window.__delContact = (id)=>{
     }, destructive:true}
   ]);
 };
-window.__cycleStatus = (id)=>{
-  const order=['new','contacted','qualified','customer','lost'];
+window.__contactStatus = (id, status)=>{
   const c = state.contacts.find(x=>x.id===id); if (!c) return;
-  const i = order.indexOf(c.status||'new');
-  c.status = order[(i+1)%order.length];
+  if (status === '') {
+    delete c.status;
+    toast('Status cleared');
+  } else {
+    c.status = status;
+    if (OUTREACH_STATUSES.indexOf(status) >= 0) c.lastContacted = Date.now();
+    toast('Status: '+labelOf(status));
+  }
   c.updated = Date.now();
-  save(); openContactView(c);
-  toast('Status: '+c.status);
+  save();
+  openContactView(c);
 };
 
 function openContactEdit(c){
@@ -476,7 +591,13 @@ function openContactEdit(c){
     <div class="form">
       <div class="frow"><label>Status</label>
         <select id="fS">
-          ${['new','contacted','qualified','customer','lost'].map(s=>`<option value="${s}" ${(c.status||'new')===s?'selected':''}>${s}</option>`).join('')}
+          <option value="" ${!c.status?'selected':''}>(none)</option>
+          <optgroup label="Outreach">
+            ${OUTREACH_STATUSES.map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${labelOf(s)}</option>`).join('')}
+          </optgroup>
+          <optgroup label="Pipeline">
+            ${PIPELINE_STATUSES.map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${labelOf(s)}</option>`).join('')}
+          </optgroup>
         </select>
       </div>
       <div class="frow"><label>Category</label>
@@ -552,25 +673,43 @@ function renderPipeline(){
   $('#ldCats').style.display='none';
   const cs = state.contacts;
   const total = cs.length;
-  const byStatus = {new:[],contacted:[],qualified:[],customer:[],lost:[]};
-  for (const c of cs){ (byStatus[c.status||'new'] = byStatus[c.status||'new']||[]).push(c); }
-  const conv = total ? Math.round(100*byStatus.customer.length/total) : 0;
+  const byStatus = {};
+  ALL_STATUSES.forEach(s => { byStatus[s] = []; });
+  byStatus.new = byStatus.new || [];
+  byStatus.contacted = byStatus.contacted || [];  // legacy
+  for (const c of cs){
+    let s = c.status || '';
+    if (s === '') s = 'new';
+    (byStatus[s] = byStatus[s]||[]).push(c);
+  }
+  const customers = byStatus.customer.length;
+  const qualified = byStatus.qualified.length;
+  const conv = total ? Math.round(100*customers/total) : 0;
+  // Render order: New, then outreach methods in workflow order, then pipeline stages
+  const renderOrder = ['new','contacted','spoke','lvm','texted','emailed','direct_mailed','qualified','customer','lost'];
   $('#ldPipe').innerHTML = `
     <div class="stats">
       <div class="st"><div class="l">Total Leads</div><div class="v">${total}</div></div>
-      <div class="st"><div class="l">Customers</div><div class="v" style="color:var(--green)">${byStatus.customer.length}</div></div>
-      <div class="st"><div class="l">Qualified</div><div class="v" style="color:var(--purple)">${byStatus.qualified.length}</div></div>
+      <div class="st" style="background:rgba(52,199,89,0.10);border:1px solid rgba(52,199,89,0.25)"><div class="l">Customers</div><div class="v" style="color:var(--green)">${customers}</div></div>
+      <div class="st"><div class="l">Qualified</div><div class="v" style="color:var(--purple)">${qualified}</div></div>
       <div class="st"><div class="l">Conversion</div><div class="v" style="color:var(--orange)">${conv}%</div></div>
+      <button class="st" id="dncCard" style="text-align:left;cursor:pointer;grid-column:span 2;background:${dncCount()?'rgba(255,69,58,0.10)':'var(--bg2)'};border:${dncCount()?'1px solid rgba(255,69,58,0.30)':'none'}">
+        <div class="l">🚫 Do Not Call list</div>
+        <div class="v" style="color:var(--red)">${dncCount()}</div>
+        <div class="muted" style="font-size:12px;margin-top:2px">Tap to manage · TCPA compliance</div>
+      </button>
     </div>
-    ${['new','contacted','qualified','customer','lost'].map(s=>{
+    ${renderOrder.map(s=>{
       const arr = byStatus[s]||[];
       if (arr.length===0) return '';
-      return `<div class="gr"><div class="gr-h">${s} (${arr.length})</div>
+      return `<div class="gr"><div class="gr-h"><span class="bdg bdg-${s==='new'?'pre':s}">${labelOf(s)}</span> · ${arr.length}</div>
       <div class="list">${arr.slice(0,20).map(c=>{
         const n=fullName(c)||c.company||'?';
-        return `<button class="row" data-cid="${c.id}">
-          <div class="av" style="background:${avColor(c.id)};width:32px;height:32px;font-size:12px">${initials(n)}</div>
+        const dnc = isDNC(c.phone);
+        return `<button class="row" data-cid="${c.id}" ${dnc?'style="opacity:0.55"':''}>
+          <div class="av" style="background:${dnc?'var(--red)':avColor(c.id)};width:32px;height:32px;font-size:12px">${initials(n)}</div>
           <div class="body"><span class="t">${esc(n)}</span>${c.company&&fullName(c)?`<span class="s">${esc(c.company)}</span>`:''}</div>
+          ${dnc?'<span class="bdg" style="background:rgba(255,69,58,0.20);color:var(--red);margin-right:6px">🚫 DNC</span>':''}
           ${c.lastContacted?`<span class="meta">${timeAgo(c.lastContacted)}</span>`:''}
         </button>`;
       }).join('')}</div></div>`;
@@ -583,7 +722,53 @@ function renderPipeline(){
       if (c) openContactView(c);
     });
   });
+  const dncBtn = $('#dncCard');
+  if (dncBtn) dncBtn.addEventListener('click', openDNCList);
 }
+
+function openDNCList(){
+  const entries = Object.entries(state.dnc).sort((a,b)=> (b[1].addedAt||0) - (a[1].addedAt||0));
+  $('#mTitle').textContent = '🚫 Do Not Call List';
+  $('#mCancel').textContent = 'Close';
+  $('#mSave').textContent = 'Export';
+  $('#mSave').style.color = 'var(--link)'; $('#mSave').style.fontWeight = '600'; $('#mSave').style.pointerEvents='auto';
+  $('#mBody').innerHTML = `
+    <div style="background:rgba(255,69,58,0.08);border:1px solid rgba(255,69,58,0.25);border-radius:10px;padding:12px;margin-bottom:14px">
+      <p style="font-size:13px;line-height:1.5"><strong style="color:var(--red)">TCPA compliance:</strong> federal law requires you to maintain an internal Do Not Call list and honor opt-outs within 30 days. Export this list during audits.</p>
+    </div>
+    <div class="muted" style="font-size:13px;margin-bottom:8px">${entries.length} number${entries.length===1?'':'s'} on list</div>
+    ${entries.length===0
+      ? '<div class="empty"><h3>No DNC entries</h3><p>When someone asks not to be called, mark them as Do Not Call from the lead or contact view.</p></div>'
+      : '<div class="list">'+entries.map(([phone, info])=>`
+          <div class="row" style="display:flex">
+            <div class="av" style="background:var(--red);width:32px;height:32px;font-size:11px">${initials(info.name||fmtPhone(phone))}</div>
+            <div class="body">
+              <span class="t">${esc(info.name||fmtPhone(phone))}</span>
+              <span class="s">${fmtPhone(phone)}${info.reason?' · '+esc(info.reason):''}${info.source && info.source!=='manual'?' · '+esc(info.source):''}${info.addedAt?' · '+new Date(info.addedAt).toLocaleDateString():''}</span>
+            </div>
+            <button class="info" onclick="window.__unmarkDnc('${phone}')" aria-label="Remove">
+              <svg viewBox="0 0 24 24" style="fill:var(--red)"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+          </div>`).join('')+'</div>'
+    }
+    <button class="btn btn-s" style="width:100%;margin-top:14px" onclick="window.__addDncManual()">+ Add a number manually</button>
+  `;
+  $('#mSave').onclick = exportDNCCSV;
+  $('#mCancel').onclick = closeModal;
+  showModal();
+}
+
+window.__addDncManual = ()=>{
+  const phone = prompt('Phone number to add to Do Not Call list:');
+  if (!phone) return;
+  const reason = prompt('Reason (optional):') || '';
+  if (addDNC(phone, {reason, source:'manual'})){
+    toast('Added to Do Not Call');
+    openDNCList();
+  } else {
+    toast('Invalid phone number');
+  }
+};
 
 function leadCount(catId){
   return ((window.LEADS && window.LEADS[catId]) || []).length;
@@ -668,14 +853,19 @@ function renderCategoryDetail(){
           const ls = state.leadState[k];
           const status = ls && ls.status;
           const saved = state.contacts.find(c=> digits(c.phone)===l.p);
-          return `<div class="row" data-leadkey="${esc(k)}">
-            <div class="av" style="background:${cat.color};width:32px;height:32px;font-size:11px">${initials(l.n)}</div>
+          const dnc = isDNC(l.p);
+          return `<div class="row" data-leadkey="${esc(k)}" ${dnc?'style="opacity:0.55"':''}>
+            <div class="av" style="background:${dnc?'var(--red)':cat.color};width:32px;height:32px;font-size:11px">${initials(l.n)}</div>
             <div class="body">
               <span class="t">${esc(l.n)}</span>
               <span class="s">${l.c?esc(l.c)+' · ':''}${l.r?'★'+l.r+(l.v?` (${l.v})`:''):''}</span>
             </div>
-            ${saved?'<span class="bdg bdg-customer" style="margin-right:6px">saved</span>':status?`<span class="bdg bdg-${status}" style="margin-right:6px">${esc(status)}</span>`:''}
-            <button class="info gn" data-call="${esc(l.p)}" aria-label="Call"><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg></button>
+            ${dnc
+              ? '<span class="bdg" style="background:rgba(255,69,58,0.20);color:var(--red);margin-right:6px">🚫 DNC</span>'
+              : saved
+                ? '<span class="bdg bdg-customer" style="margin-right:6px">saved</span>'
+                : status?`<span class="bdg bdg-${status}" style="margin-right:6px">${esc(labelOf(status))}</span>`:''}
+            <button class="info ${dnc?'':'gn'}" data-call="${esc(l.p)}" aria-label="Call" ${dnc?'style="background:var(--fill)"':''}><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg></button>
           </div>`;
         }).join('')+'</div>'+(leads.length>300?`<div class="muted center" style="padding:12px 16px">${leads.length-300} more — narrow your search</div>`:'')}
     <div class="divider"></div>
@@ -701,7 +891,7 @@ function renderCategoryDetail(){
       const p = b.dataset.call;
       if (!p) return;
       const k = b.closest('[data-leadkey]').dataset.leadkey;
-      markLeadStatus(cat.id, k, 'contacted');
+      bumpLeadLastContacted(cat.id, k);
       placeCall(p);
     });
   });
@@ -712,6 +902,15 @@ function stateKey(catId, l){ return catId+'|'+(l.p||l.n); }
 function markLeadStatus(catId, k, status){
   state.leadState[k] = state.leadState[k] || {};
   state.leadState[k].status = status;
+  // Outreach methods bump lastContacted; pipeline stages don't (we may have moved them
+  // long after the last actual outreach).
+  if (OUTREACH_STATUSES.indexOf(status) >= 0) {
+    state.leadState[k].lastContacted = Date.now();
+  }
+  save();
+}
+function bumpLeadLastContacted(catId, k){
+  state.leadState[k] = state.leadState[k] || {};
   state.leadState[k].lastContacted = Date.now();
   save();
 }
@@ -720,6 +919,7 @@ function openLeadDetail(cat, l){
   const k = stateKey(cat.id, l);
   const ls = state.leadState[k] || {};
   const saved = state.contacts.find(c=> digits(c.phone)===l.p);
+  const scriptDoc = (window.DOCS||[]).find(d => d.cat==='script' && d.target===cat.id);
   $('#mTitle').textContent = '';
   $('#mCancel').textContent = 'Close'; $('#mSave').textContent = '';
   $('#mSave').style.color='transparent'; $('#mSave').style.pointerEvents='none';
@@ -729,8 +929,10 @@ function openLeadDetail(cat, l){
       <h1>${esc(l.n)}</h1>
       <div class="sub">${cat.icon} ${esc(cat.name)}</div>
       ${l.r?`<div class="sub" style="margin-top:4px">★ ${l.r}${l.v?` (${l.v} reviews)`:''}${l.y?` · est. ${esc(l.y)}`:''}</div>`:l.y?`<div class="sub">est. ${esc(l.y)}</div>`:''}
-      ${saved?'<div style="margin-top:8px"><span class="bdg bdg-customer">saved as contact</span></div>':ls.status?`<div style="margin-top:8px"><span class="bdg bdg-${ls.status}">${esc(ls.status)}</span></div>`:''}
+      ${saved?'<div style="margin-top:8px"><span class="bdg bdg-customer">saved as contact</span></div>':ls.status?`<div style="margin-top:8px"><span class="bdg bdg-${ls.status}">${esc(labelOf(ls.status))}</span></div>`:''}
+      ${isDNC(l.p) ? `<div style="margin-top:8px"><span class="bdg" style="background:rgba(255,69,58,0.18);color:var(--red)">🚫 Do Not Call</span></div>` : ''}
     </div>
+    ${scriptDoc ? `<button class="btn" style="width:100%;background:rgba(52,199,89,0.10);color:var(--green);border:1px solid rgba(52,199,89,0.35);margin-bottom:12px;font-weight:600" onclick="window.__openDoc('${scriptDoc.id}')">📄 Open ${esc(cat.name)} Sales Script</button>` : ''}
     <div class="qa">
       <button class="qa-b" ${!l.p?'disabled':''} onclick="window.__leadCall('${cat.id}','${esc(k)}','${esc(l.p)}')"><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg><span class="l">Call</span></button>
       <button class="qa-b" ${!l.p?'disabled':''} onclick="window.location.href='sms:+1${esc(l.p)}'"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg><span class="l">Text</span></button>
@@ -743,30 +945,90 @@ function openLeadDetail(cat, l){
       ${l.w?`<a class="row" href="${esc(l.w)}" target="_blank" rel="noopener"><div class="body"><span class="s" style="font-size:13px">website</span><span class="t" style="color:var(--link);overflow:hidden;text-overflow:ellipsis">${esc(l.w)}</span></div></a>`:''}
       ${l.a?`<button class="row" onclick="window.open('https://maps.apple.com/?q='+encodeURIComponent('${esc(l.a)}'))"><div class="body"><span class="s" style="font-size:13px">address</span><span class="t wrap">${esc(l.a)}</span></div></button>`:''}
     </div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:16px">
-      <button class="btn btn-s" onclick="window.__leadStatus('${cat.id}','${esc(k)}','contacted')">Mark Contacted</button>
-      <button class="btn btn-s" onclick="window.__leadStatus('${cat.id}','${esc(k)}','qualified')">Mark Qualified</button>
-      <button class="btn btn-s" onclick="window.__leadStatus('${cat.id}','${esc(k)}','customer')">Mark Customer</button>
-      <button class="btn btn-s" onclick="window.__leadStatus('${cat.id}','${esc(k)}','lost')">Mark Lost</button>
+    <div class="gr-h" style="padding:14px 0 8px">Outreach — how we touched them</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+      <button class="btn btn-s ${ls.status==='spoke'?'btn-p':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','spoke')">Spoke</button>
+      <button class="btn btn-s ${ls.status==='lvm'?'btn-p':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','lvm')">LVM</button>
+      <button class="btn btn-s ${ls.status==='texted'?'btn-p':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','texted')">Texted</button>
+      <button class="btn btn-s ${ls.status==='emailed'?'btn-p':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','emailed')">Emailed</button>
+      <button class="btn btn-s ${ls.status==='direct_mailed'?'btn-p':''}" style="grid-column:span 2" onclick="window.__leadStatus('${cat.id}','${esc(k)}','direct_mailed')">Direct Mailed</button>
     </div>
+    <div class="gr-h" style="padding:14px 0 8px">Pipeline stage</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <button class="btn btn-s ${ls.status==='qualified'?'btn-p':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','qualified')">Qualified</button>
+      <button class="btn btn-g" style="${ls.status!=='customer'?'background:rgba(52,199,89,0.15);color:var(--green)':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','customer')">Customer</button>
+      <button class="btn btn-s ${ls.status==='lost'?'btn-p':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','lost')">Lost</button>
+    </div>
+    ${ls.status ? `<button class="btn btn-s" style="width:100%;margin-top:10px" onclick="window.__leadStatus('${cat.id}','${esc(k)}','')">Clear Status</button>` : ''}
     ${saved
       ? `<button class="btn" style="width:100%;margin-top:10px;color:var(--link)" onclick="window.__viewSaved('${saved.id}')">View Saved Contact →</button>`
       : `<button class="btn btn-p" style="width:100%;margin-top:10px" onclick="window.__leadSave('${cat.id}','${esc(k)}')">Save to Contacts</button>`}
-    <button class="btn" style="width:100%;margin-top:8px;color:var(--red)" onclick="window.__leadHide('${esc(k)}')">Hide From List</button>
+    <div style="margin-top:18px;padding-top:14px;border-top:0.5px solid var(--sep)">
+      <div class="gr-h" style="padding:0 0 8px">Compliance</div>
+      ${isDNC(l.p)
+        ? `<button class="btn" style="width:100%;background:rgba(255,69,58,0.15);color:var(--red);border:1px solid rgba(255,69,58,0.35)" onclick="window.__unmarkDnc('${esc(l.p)}')">✓ Remove from Do Not Call</button>`
+        : `<button class="btn" style="width:100%;background:rgba(255,69,58,0.10);color:var(--red);border:1px solid rgba(255,69,58,0.30)" onclick="window.__markDnc('${cat.id}','${esc(k)}','${esc(l.p)}')">🚫 Mark Do Not Call</button>`}
+      <button class="btn" style="width:100%;margin-top:8px;color:var(--red)" onclick="window.__leadHide('${esc(k)}')">Hide From List</button>
+    </div>
   `;
   $('#mCancel').onclick = closeModal;
   showModal();
 }
 
 window.__leadCall = (catId, k, p)=>{
-  markLeadStatus(catId, k, 'contacted');
+  bumpLeadLastContacted(catId, k);
   closeModal();
   placeCall(p);
 };
 window.__leadStatus = (catId, k, st)=>{
-  markLeadStatus(catId, k, st);
-  toast('Status: '+st);
+  if (st === '') {
+    // Clear status
+    if (state.leadState[k]) {
+      delete state.leadState[k].status;
+      save();
+    }
+    toast('Status cleared');
+  } else {
+    markLeadStatus(catId, k, st);
+    toast('Status: '+labelOf(st));
+  }
+  closeModal();
   if (ldCat===catId) renderCategoryDetail();
+};
+
+window.__markDnc = (catId, k, phone)=>{
+  const d = digits(phone);
+  if (!d){ toast('No phone number'); return; }
+  // Look up the name from whichever source — lead list or contacts
+  let name = '';
+  let source = catId || 'manual';
+  if (catId && k){
+    const list = (window.LEADS && window.LEADS[catId]) || [];
+    const lead = list.find(x=> stateKey(catId, x) === k);
+    if (lead) name = lead.n;
+  } else {
+    // Contact path — find by phone
+    const c = state.contacts.find(x=> digits(x.phone) === d);
+    if (c) { name = fullName(c) || c.company || ''; source = 'contact'; }
+  }
+  showActionSheet([
+    {label:'Asked to be removed', action:()=>{ addDNC(d, {reason:'Asked to be removed', name, source}); finalize(); }},
+    {label:'Wrong number',        action:()=>{ addDNC(d, {reason:'Wrong number', name, source}); finalize(); }},
+    {label:'Business closed',     action:()=>{ addDNC(d, {reason:'Business closed', name, source}); finalize(); }},
+    {label:'Litigator / TCPA risk', action:()=>{ addDNC(d, {reason:'Litigator / TCPA risk', name, source}); finalize(); }, destructive:true},
+    {label:'No reason given',     action:()=>{ addDNC(d, {reason:'', name, source}); finalize(); }}
+  ]);
+  function finalize(){
+    toast('Added to Do Not Call');
+    closeModal();
+    refreshActiveView();
+  }
+};
+window.__unmarkDnc = (phone)=>{
+  removeDNC(phone);
+  toast('Removed from Do Not Call');
+  closeModal();
+  refreshActiveView();
 };
 window.__leadSave = (catId, k)=>{
   const list = window.LEADS[catId]||[];
@@ -799,7 +1061,8 @@ $('#ldExport').addEventListener('click', ()=>{
   showActionSheet([
     {label:'Export Contacts CSV', action:exportContactsCSV},
     {label:'Export Call Log CSV', action:exportCallLogCSV},
-    {label:'Export Pizza Lead List', action:()=>exportLeadCategoryCSV('pizza')}
+    {label:'Export Pizza Lead List', action:()=>exportLeadCategoryCSV('pizza')},
+    {label:`🚫 Export DNC List (${dncCount()})`, action:exportDNCCSV}
   ]);
 });
 
@@ -976,6 +1239,22 @@ function exportLeadCategoryCSV(catId){
   const rows = list.map(l=>[l.n,fmtPhone(l.p),l.e,l.w,l.a,l.c,l.s,l.z,l.r||'',l.v||'',l.y||'']);
   download(toCSV([headers,...rows]), 'nepa-pro-leads-'+catId+'.csv', 'text/csv');
 }
+function exportDNCCSV(){
+  const entries = Object.entries(state.dnc);
+  if (entries.length===0){ toast('DNC list is empty'); return; }
+  const headers = ['Phone','Name','Reason','Source','Added Date','Added Timestamp ISO'];
+  const rows = entries.map(([phone, info])=>[
+    fmtPhone(phone),
+    info.name || '',
+    info.reason || '',
+    info.source || '',
+    info.addedAt ? new Date(info.addedAt).toLocaleDateString() : '',
+    info.addedAt ? new Date(info.addedAt).toISOString() : ''
+  ]);
+  const today = new Date().toISOString().slice(0,10);
+  download(toCSV([headers,...rows]), `nepa-pro-do-not-call-${today}.csv`, 'text/csv');
+  toast('DNC list exported');
+}
 function toCSV(rows){
   return rows.map(r=>r.map(v=>{
     v = String(v==null?'':v);
@@ -991,6 +1270,7 @@ function download(text, filename, type){
 }
 $('#ctExport').addEventListener('click', exportContactsCSV);
 $('#logExport').addEventListener('click', exportCallLogCSV);
+$('#dncManageBtn').addEventListener('click', openDNCList);
 
 /* ========== BUSINESS CARD ========== */
 function renderCard(){
@@ -1133,6 +1413,65 @@ function updateStorageInfo(){
     const kb = (s.length/1024).toFixed(1);
     $('#storeInfo').textContent = `${state.contacts.length} contacts · ${state.calls.length} calls · ${kb} KB`;
   }catch(e){ $('#storeInfo').textContent = 'unavailable'; }
+  const lbl = $('#dncCountLabel');
+  if (lbl){
+    const n = dncCount();
+    lbl.textContent = `${n} number${n===1?'':'s'} · TCPA compliance`;
+  }
+}
+
+/* ========== DOC HUB — sales scripts, compliance, templates ========== */
+
+const DOC_CAT_META = {
+  'script':     {label:'Sales Scripts',   ico:'gn', svg:'<svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>'},
+  'template':   {label:'Templates',       ico:'bl', svg:'<svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>'},
+  'compliance': {label:'Compliance',      ico:'rd', svg:'<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>'}
+};
+
+function renderDocs(){
+  const list = $('#docList');
+  if (!list || !window.DOCS) return;
+  // Filter relevant scripts to the top — if user just came from a lead category, those scripts get pushed to top
+  const docs = window.DOCS.slice();
+  // Group by cat
+  const byCat = {script:[], template:[], compliance:[]};
+  for (const d of docs){ (byCat[d.cat] = byCat[d.cat]||[]).push(d); }
+  let html = '';
+  for (const cat of ['script','template','compliance']){
+    const arr = byCat[cat] || [];
+    if (!arr.length) continue;
+    const meta = DOC_CAT_META[cat];
+    html += arr.map(d => {
+      const tcat = d.target && d.target!=='all' ? CATS.find(c=>c.id===d.target) : null;
+      const sub = tcat ? `${tcat.icon} ${tcat.name}` : (d.summary || meta.label);
+      return `<button class="row" data-doc="${esc(d.id)}">
+        <div class="ico ${meta.ico}">${meta.svg}</div>
+        <div class="body"><span class="t">${esc(d.title)}</span><span class="s">${esc(sub)}</span></div>
+        <span class="meta"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>`;
+    }).join('');
+  }
+  list.innerHTML = html;
+  list.querySelectorAll('[data-doc]').forEach(b => {
+    b.addEventListener('click', () => openDoc(b.dataset.doc));
+  });
+}
+
+function openDoc(docId){
+  const d = (window.DOCS||[]).find(x => x.id === docId);
+  if (!d){ toast('Doc not found'); return; }
+  $('#mTitle').textContent = '';
+  $('#mCancel').textContent = 'Close';
+  $('#mSave').textContent = 'Print';
+  $('#mSave').style.color = 'var(--link)';
+  $('#mSave').style.fontWeight = '600';
+  $('#mSave').style.pointerEvents = 'auto';
+  $('#mBody').innerHTML = `<div class="doc">${d.body}</div>`;
+  $('#mSave').onclick = () => window.print();
+  $('#mCancel').onclick = closeModal;
+  showModal();
+  // Scroll to top
+  setTimeout(() => { const sc = $('#mBody'); if (sc) sc.scrollTop = 0; }, 50);
 }
 
 /* ========== Modal & Action sheet ========== */
@@ -1159,6 +1498,7 @@ $('#asheet').addEventListener('click', e=>{ if (e.target.id==='asheet') $('#ashe
 setDialed('');
 renderCard();
 updateStorageInfo();
+renderLeads();   // default tab is now Leads, so paint it on boot
 
 /* Service worker */
 if ('serviceWorker' in navigator){

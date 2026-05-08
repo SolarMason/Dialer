@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-07T22:25:30Z",
+  "lastUpdated": "2026-05-08T01:10:27Z",
   "source": "https://docs.google.com/spreadsheets/d/1puRZ_27LA7CurTKQMxrCKU7H3AZ-1o_5NMfRLKQoc-Y/edit",
   "categories": [
     {
@@ -21,6 +21,21 @@
       "id": "barber",
       "count": 2914,
       "file": "leads-barber.js"
+    },
+    {
+      "id": "roofers",
+      "count": 187,
+      "file": "leads-roofers.js"
+    },
+    {
+      "id": "plumbers",
+      "count": 3151,
+      "file": "leads-plumbers.js"
+    },
+    {
+      "id": "hvac",
+      "count": 1138,
+      "file": "leads-hvac.js"
     }
   ]
 }
