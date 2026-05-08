@@ -70,7 +70,7 @@ function avColor(seed){
 /* ========== Status / outreach taxonomy ========== */
 // Outreach methods (how we last touched them) + pipeline stages (where they are in funnel)
 const OUTREACH_STATUSES = ['spoke','lvm','texted','emailed','direct_mailed'];
-const PIPELINE_STATUSES = ['qualified','customer','lost'];
+const PIPELINE_STATUSES = ['scheduled','qualified','customer','lost'];
 const ALL_STATUSES      = ['', ...OUTREACH_STATUSES, ...PIPELINE_STATUSES];
 const STATUS_LABELS = {
   '':              'New',
@@ -79,6 +79,7 @@ const STATUS_LABELS = {
   'texted':        'Texted',
   'emailed':       'Emailed',
   'direct_mailed': 'Direct Mailed',
+  'scheduled':     'Scheduled',
   'qualified':     'Qualified',
   'customer':      'Customer',
   'lost':          'Lost',
@@ -505,8 +506,8 @@ function openContactView(c){
     </div>
     <div class="qa">
       <button class="qa-b" ${!c.phone?'disabled':''} onclick="window.__call('${digits(c.phone)}')"><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg><span class="l">Call</span></button>
-      <button class="qa-b" ${!c.phone?'disabled':''} onclick="window.location.href='sms:+1${digits(c.phone)}'"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg><span class="l">Text</span></button>
-      <button class="qa-b" ${!c.email?'disabled':''} onclick="window.location.href='mailto:${esc(c.email)}'"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span class="l">Email</span></button>
+      <button class="qa-b" ${!c.phone?'disabled':''} onclick="window.__contactText('${c.id}','${digits(c.phone)}')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg><span class="l">Text</span></button>
+      <button class="qa-b" ${!c.email?'disabled':''} onclick="window.__contactEmail('${c.id}','${esc(c.email||'')}')"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span class="l">Email</span></button>
       <button class="qa-b" ${!c.address?'disabled':''} onclick="window.open('https://maps.apple.com/?q='+encodeURIComponent('${esc(c.address)}'))"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg><span class="l">Map</span></button>
     </div>
     <div class="list">
@@ -519,6 +520,7 @@ function openContactView(c){
       ${c.notes ? `<div class="row" style="display:block"><span class="s" style="font-size:13px">notes</span><div style="margin-top:4px;white-space:pre-wrap">${esc(c.notes)}</div></div>`:''}
       ${c.lastContacted ? `<div class="row"><div class="body"><span class="s" style="font-size:13px">last contacted</span><span class="t">${new Date(c.lastContacted).toLocaleString()}</span></div></div>`:''}
     </div>
+    <button class="btn" style="width:100%;background:var(--green);color:#fff;border:none;margin-top:12px;font-weight:700;box-shadow:0 4px 14px rgba(52,199,89,0.30)" onclick="window.__schedule('${esc((fullName(c)||c.company||'').replace(/'/g,''))}','${esc(digits(c.phone)||'')}','${esc(c.email||'')}','${esc(c.category?(CAT_BY[c.category]?CAT_BY[c.category].name:c.category):'')}')">📅 Schedule Appointment</button>
     ${isDNC(c.phone) ? `<div style="background:rgba(255,69,58,0.10);border:1px solid rgba(255,69,58,0.35);border-radius:12px;padding:12px;margin-top:12px;text-align:center"><strong style="color:var(--red)">🚫 On Do Not Call list</strong>${state.dnc[digits(c.phone)].reason ? `<div class="muted" style="font-size:13px;margin-top:4px">${esc(state.dnc[digits(c.phone)].reason)}</div>`:''}</div>` : ''}
     <div class="gr-h" style="padding:14px 0 8px">Outreach — how we touched them</div>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
@@ -529,7 +531,8 @@ function openContactView(c){
       <button class="btn btn-s ${c.status==='direct_mailed'?'btn-p':''}" style="grid-column:span 2" onclick="window.__contactStatus('${c.id}','direct_mailed')">Direct Mailed</button>
     </div>
     <div class="gr-h" style="padding:14px 0 8px">Pipeline stage</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+      <button class="btn btn-s ${c.status==='scheduled'?'btn-p':''}" style="${c.status==='scheduled'?'':'background:rgba(48,209,88,0.10);color:var(--green);border:1px solid rgba(48,209,88,0.30)'}" onclick="window.__contactStatus('${c.id}','scheduled')">Scheduled</button>
       <button class="btn btn-s ${c.status==='qualified'?'btn-p':''}" onclick="window.__contactStatus('${c.id}','qualified')">Qualified</button>
       <button class="btn btn-g" style="${c.status!=='customer'?'background:rgba(52,199,89,0.15);color:var(--green)':''}" onclick="window.__contactStatus('${c.id}','customer')">Customer</button>
       <button class="btn btn-s ${c.status==='lost'?'btn-p':''}" onclick="window.__contactStatus('${c.id}','lost')">Lost</button>
@@ -550,6 +553,65 @@ function openContactView(c){
 
 window.__call = placeCall;
 window.__openDoc = (id) => { closeModal(); setTimeout(() => openDoc(id), 100); };
+
+// Schedule — opens the booking app pre-filled AND marks the lead/contact as Scheduled
+window.__schedule = (name, phone, email, category) => {
+  const params = new URLSearchParams();
+  if (name)     params.set('name', name);
+  if (phone)    params.set('phone', phone);
+  if (email)    params.set('email', email);
+  if (category) params.set('category', category);
+  params.set('source', 'nepa-pro-dialer');
+  const url = 'https://schedule.nepa-pro.com/app?' + params.toString();
+  window.open(url, '_blank', 'noopener');
+  vibrate(15);
+  // Auto-set status to Scheduled (or just bump lastContacted if they're further along)
+  const updated = autoTouchByPhone(phone, 'scheduled');
+  toast(updated ? 'Status: Scheduled · booking opened' : 'Booking opened');
+  refreshActiveView();
+};
+
+// Auto-touch handlers for lead-modal Text/Email buttons.
+// Each: opens the native sms:/mailto: link AND auto-updates the status accordingly.
+window.__leadText = (catId, k, phone) => {
+  if (!phone) return;
+  autoTouchLead(catId, k, 'texted');
+  toast('Status: Texted');
+  window.location.href = 'sms:+1' + digits(phone);
+  setTimeout(() => { closeModal(); refreshActiveView(); }, 200);
+};
+window.__leadEmail = (catId, k, email) => {
+  if (!email) return;
+  autoTouchLead(catId, k, 'emailed');
+  toast('Status: Emailed');
+  window.location.href = 'mailto:' + email;
+  setTimeout(() => { closeModal(); refreshActiveView(); }, 200);
+};
+
+// Same for saved contacts
+window.__contactText = (contactId, phone) => {
+  if (!phone) return;
+  autoTouchContact(contactId, 'texted');
+  toast('Status: Texted');
+  window.location.href = 'sms:+1' + digits(phone);
+  setTimeout(() => {
+    const c = state.contacts.find(x => x.id === contactId);
+    closeModal();
+    if (c) openContactView(c);
+  }, 200);
+};
+window.__contactEmail = (contactId, email) => {
+  if (!email) return;
+  autoTouchContact(contactId, 'emailed');
+  toast('Status: Emailed');
+  window.location.href = 'mailto:' + email;
+  setTimeout(() => {
+    const c = state.contacts.find(x => x.id === contactId);
+    closeModal();
+    if (c) openContactView(c);
+  }, 200);
+};
+
 window.__delContact = (id)=>{
   showActionSheet([
     {label:'Delete Contact', action:()=>{
@@ -690,7 +752,7 @@ function renderPipeline(){
   const qualified = byStatus.qualified.length;
   const conv = total ? Math.round(100*customers/total) : 0;
   // Render order: New, then outreach methods in workflow order, then pipeline stages
-  const renderOrder = ['new','contacted','spoke','lvm','texted','emailed','direct_mailed','qualified','customer','lost'];
+  const renderOrder = ['new','contacted','spoke','lvm','texted','emailed','direct_mailed','scheduled','qualified','customer','lost'];
   $('#ldPipe').innerHTML = `
     <div class="stats">
       <div class="st"><div class="l">Total Leads</div><div class="v">${total}</div></div>
@@ -919,6 +981,84 @@ function bumpLeadLastContacted(catId, k){
   save();
 }
 
+// Pipeline ordering — higher rank = further along in the funnel.
+// We never auto-downgrade a lead from a higher-rank status to a lower one
+// based on a touchpoint (e.g. emailing a Customer doesn't reset them to Emailed).
+const STATUS_RANK = {
+  '': 0, 'new': 0,
+  'spoke': 1, 'lvm': 1, 'texted': 1, 'emailed': 1, 'direct_mailed': 1, 'contacted': 1,
+  'scheduled': 2,
+  'qualified': 3,
+  'customer': 4,
+  'lost': 5  // terminal but we still don't downgrade out of Lost via auto-touch
+};
+
+/**
+ * Auto-update status when a touchpoint happens (call, text, email, schedule).
+ * - Called from the action listeners on the lead modal's Quick Actions row.
+ * - Always bumps lastContacted.
+ * - Sets status to `newStatus` only if the existing status is at a lower rank.
+ *   (So emailing a Customer just bumps lastContacted — doesn't demote them.)
+ * - Returns true if status was actually changed.
+ */
+function autoTouchLead(catId, k, newStatus){
+  state.leadState[k] = state.leadState[k] || {};
+  const ls = state.leadState[k];
+  ls.lastContacted = Date.now();
+  const currentRank = STATUS_RANK[ls.status || ''] ?? 0;
+  const newRank     = STATUS_RANK[newStatus]      ?? 0;
+  let changed = false;
+  // Promote if higher rank, OR replace if same rank (e.g. texted -> emailed reflects latest touch)
+  if (newRank >= currentRank) {
+    if (ls.status !== newStatus) {
+      ls.status = newStatus;
+      changed = true;
+    }
+  }
+  save();
+  return changed;
+}
+
+function autoTouchContact(contactId, newStatus){
+  const c = state.contacts.find(x => x.id === contactId);
+  if (!c) return false;
+  c.lastContacted = Date.now();
+  c.updated       = Date.now();
+  const currentRank = STATUS_RANK[c.status || ''] ?? 0;
+  const newRank     = STATUS_RANK[newStatus]      ?? 0;
+  let changed = false;
+  if (newRank >= currentRank) {
+    if (c.status !== newStatus) {
+      c.status = newStatus;
+      changed = true;
+    }
+  }
+  save();
+  return changed;
+}
+
+// When a touchpoint fires from anywhere in the app, find any matching records
+// (lead in any category + saved contact by phone) and auto-update them all.
+// Returns a friendly toast string or null.
+function autoTouchByPhone(phoneDigits, newStatus){
+  const d = digits(phoneDigits);
+  if (!d) return null;
+  let bumped = false;
+  // Match across all category lead lists
+  for (const cat of CATS) {
+    const list = (window.LEADS && window.LEADS[cat.id]) || [];
+    for (const l of list) {
+      if (l.p === d) {
+        if (autoTouchLead(cat.id, stateKey(cat.id, l), newStatus)) bumped = true;
+      }
+    }
+  }
+  // Match saved contact
+  const c = findContactByPhone(d);
+  if (c && autoTouchContact(c.id, newStatus)) bumped = true;
+  return bumped ? labelOf(newStatus) : null;
+}
+
 function openLeadDetail(cat, l){
   const k = stateKey(cat.id, l);
   const ls = state.leadState[k] || {};
@@ -936,11 +1076,12 @@ function openLeadDetail(cat, l){
       ${saved?'<div style="margin-top:8px"><span class="bdg bdg-customer">saved as contact</span></div>':ls.status?`<div style="margin-top:8px"><span class="bdg bdg-${ls.status}">${esc(labelOf(ls.status))}</span></div>`:''}
       ${isDNC(l.p) ? `<div style="margin-top:8px"><span class="bdg" style="background:rgba(255,69,58,0.18);color:var(--red)">🚫 Do Not Call</span></div>` : ''}
     </div>
-    ${scriptDoc ? `<button class="btn" style="width:100%;background:rgba(52,199,89,0.10);color:var(--green);border:1px solid rgba(52,199,89,0.35);margin-bottom:12px;font-weight:600" onclick="window.__openDoc('${scriptDoc.id}')">📄 Open ${esc(cat.name)} Sales Script</button>` : ''}
+    ${scriptDoc ? `<button class="btn" style="width:100%;background:rgba(52,199,89,0.10);color:var(--green);border:1px solid rgba(52,199,89,0.35);margin-bottom:8px;font-weight:600" onclick="window.__openDoc('${scriptDoc.id}')">📄 Open ${esc(cat.name)} Sales Script</button>` : ''}
+    <button class="btn" style="width:100%;background:var(--green);color:#fff;border:none;margin-bottom:12px;font-weight:700;box-shadow:0 4px 14px rgba(52,199,89,0.30)" onclick="window.__schedule('${esc(l.n).replace(/'/g,'')}','${esc(l.p)}','${esc(l.e||'')}','${esc(cat.name)}')">📅 Schedule Appointment</button>
     <div class="qa">
       <button class="qa-b" ${!l.p?'disabled':''} onclick="window.__leadCall('${cat.id}','${esc(k)}','${esc(l.p)}')"><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg><span class="l">Call</span></button>
-      <button class="qa-b" ${!l.p?'disabled':''} onclick="window.location.href='sms:+1${esc(l.p)}'"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg><span class="l">Text</span></button>
-      <button class="qa-b" ${!l.e?'disabled':''} onclick="window.location.href='mailto:${esc(l.e)}'"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span class="l">Email</span></button>
+      <button class="qa-b" ${!l.p?'disabled':''} onclick="window.__leadText('${cat.id}','${esc(k)}','${esc(l.p)}')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg><span class="l">Text</span></button>
+      <button class="qa-b" ${!l.e?'disabled':''} onclick="window.__leadEmail('${cat.id}','${esc(k)}','${esc(l.e||'')}')"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span class="l">Email</span></button>
       <button class="qa-b" ${!l.w?'disabled':''} onclick="window.open('${esc(l.w)}','_blank')"><svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg><span class="l">Web</span></button>
     </div>
     <div class="list">
@@ -958,7 +1099,8 @@ function openLeadDetail(cat, l){
       <button class="btn btn-s ${ls.status==='direct_mailed'?'btn-p':''}" style="grid-column:span 2" onclick="window.__leadStatus('${cat.id}','${esc(k)}','direct_mailed')">Direct Mailed</button>
     </div>
     <div class="gr-h" style="padding:14px 0 8px">Pipeline stage</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+      <button class="btn btn-s ${ls.status==='scheduled'?'btn-p':''}" style="${ls.status==='scheduled'?'':'background:rgba(48,209,88,0.10);color:var(--green);border:1px solid rgba(48,209,88,0.30)'}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','scheduled')">Scheduled</button>
       <button class="btn btn-s ${ls.status==='qualified'?'btn-p':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','qualified')">Qualified</button>
       <button class="btn btn-g" style="${ls.status!=='customer'?'background:rgba(52,199,89,0.15);color:var(--green)':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','customer')">Customer</button>
       <button class="btn btn-s ${ls.status==='lost'?'btn-p':''}" onclick="window.__leadStatus('${cat.id}','${esc(k)}','lost')">Lost</button>

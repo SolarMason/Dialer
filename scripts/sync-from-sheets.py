@@ -46,15 +46,40 @@ def digits(s: str) -> str:
     return re.sub(r"\D", "", s or "")
 
 def parse_address(addr: str) -> dict:
-    """Pull city/state/zip from a US address string."""
-    out = {"a": addr or "", "c": "", "s": "PA", "z": ""}
+    """Pull street/city/state/zip from a US address string.
+
+    Handles the well-formed format (`123 Main St, City, PA 18505`) plus the
+    common scraper edge case where the comma between street and city is
+    missing (`123 Main StCity, PA 18505`). Always preserves the original
+    full address string in the `a` field so the contact card shows
+    everything we have.
+    """
+    out = {"a": (addr or "").strip(), "c": "", "s": "PA", "z": ""}
     if not addr:
         return out
-    m = re.search(r",\s*([^,]+),\s*([A-Z]{2})\s*(\d{5})?\s*$", addr)
+
+    # Standard form: "..., City, PA [12345]"
+    m = re.search(r",\s*([^,]+),\s*([A-Z]{2})\s*(\d{5}(?:-\d{4})?)?\s*$", addr)
     if m:
         out["c"] = m.group(1).strip()
         out["s"] = m.group(2).strip()
         out["z"] = (m.group(3) or "").strip()
+        return out
+
+    # Fallback: missing comma between street and city (e.g. "934 Maple StScranton, PA 18505").
+    # Find the first ", PA <zip>" anchor, then split the preceding chunk on a CamelCase boundary.
+    m = re.search(r"^(.*?)([A-Z][a-zA-Z .'-]+),\s*([A-Z]{2})\s*(\d{5}(?:-\d{4})?)?\s*$", addr)
+    if m:
+        street_plus = m.group(1).strip()
+        city        = m.group(2).strip()
+        out["c"] = city
+        out["s"] = m.group(3).strip()
+        out["z"] = (m.group(4) or "").strip()
+        # Reconstruct the full address with proper comma separation
+        if street_plus:
+            out["a"] = f"{street_plus}, {city}, {out['s']}{(' ' + out['z']) if out['z'] else ''}"
+        return out
+
     return out
 
 def http_get(url: str, headers: dict | None = None, timeout: int = 30) -> bytes:
@@ -80,6 +105,10 @@ CATEGORY_ALIASES = {
     "hvac": "hvac", "heating": "hvac", "cooling": "hvac", "hvac-r": "hvac",
     "electricians": "electricians", "electrician": "electricians", "electric": "electricians", "electrical": "electricians",
     "handyman": "handyman", "handymen": "handyman", "handy": "handyman",
+    "painters": "painters", "painter": "painters", "painting": "painters", "paint": "painters",
+    "deck-builders": "deck-builders", "deck-builder": "deck-builders", "decks": "deck-builders", "deck": "deck-builders", "deck-bldrs": "deck-builders", "deck_bldrs": "deck-builders",
+    "welders": "welders", "welder": "welders", "welding": "welders",
+    "cnc-shops": "cnc-shops", "cnc-shop": "cnc-shops", "cnc": "cnc-shops", "machine-shop": "cnc-shops", "machine-shops": "cnc-shops", "machining": "cnc-shops",
     "pet-services": "pet-services", "pets": "pet-services", "pet": "pet-services", "vet": "pet-services", "vets": "pet-services", "veterinary": "pet-services", "groomers": "pet-services", "grooming": "pet-services",
     "home-services": "home-services", "home": "home-services", "cleaning": "home-services", "landscaping": "home-services", "lawn-care": "home-services",
     "food-makers": "food-makers", "food": "food-makers", "bakers": "food-makers", "bakery": "food-makers", "caterers": "food-makers", "catering": "food-makers", "restaurants": "food-makers"
@@ -87,8 +116,9 @@ CATEGORY_ALIASES = {
 
 VALID_CATEGORIES = {
     "pizza", "nail-salons", "hair", "barber", "lashes", "roofers",
-    "plumbers", "hvac", "electricians", "handyman", "pet-services",
-    "home-services", "food-makers"
+    "plumbers", "hvac", "electricians", "handyman",
+    "painters", "deck-builders", "welders", "cnc-shops",
+    "pet-services", "home-services", "food-makers"
 }
 
 
@@ -379,8 +409,9 @@ def main() -> int:
 
     # Sort by category list order so the dialer renders consistently
     order = ["pizza", "nail-salons", "hair", "barber", "lashes", "roofers",
-             "plumbers", "hvac", "electricians", "handyman", "pet-services",
-             "home-services", "food-makers"]
+             "plumbers", "hvac", "electricians", "handyman",
+             "painters", "deck-builders", "welders", "cnc-shops",
+             "pet-services", "home-services", "food-makers"]
     manifest_categories.sort(key=lambda c: order.index(c["id"]) if c["id"] in order else 999)
 
     if args.dry_run:

@@ -1462,11 +1462,26 @@ const CRM_STANDARDS = header('CRM Data Standards', 'v1.0 · How we keep the dial
   <h2 class="doc-h2">When to use each Pipeline stage</h2>
   <table class="doc-table">
     <tr><th>Stage</th><th>Definition</th></tr>
-    <tr><td><strong>Qualified</strong></td><td>They booked a discovery call OR explicitly asked for more information. Future revenue is plausible.</td></tr>
+    <tr><td><strong>Scheduled</strong></td><td>You booked a calendar appointment with them — discovery, walkthrough, or follow-up. The dialer auto-applies this when you tap the green Schedule Appointment button.</td></tr>
+    <tr><td><strong>Qualified</strong></td><td>They've completed a discovery call, expressed real interest, and are working through the proposal. A step beyond Scheduled.</td></tr>
     <tr><td><strong>Customer</strong></td><td>They signed up. Money has changed hands or a contract is countersigned. Not "they said yes" — they paid.</td></tr>
     <tr><td><strong>Lost</strong></td><td>They explicitly said no, the deal stalled past 60 days with no response, or they went with a competitor. Always log a reason in the contact's notes.</td></tr>
   </table>
   <div class="doc-callout doc-warn"><strong>Outreach vs. Pipeline:</strong> these are two different axes. A lead can be Spoke (outreach) AND Qualified (pipeline) simultaneously — but the dialer only stores one status field, so the more advanced one wins. Pipeline stages override outreach methods. The system handles this for you when you click the buttons in order.</div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">Auto-status updates</h2>
+  <p class="doc-p">The dialer automatically updates a lead's status when you take action — so you don't have to remember to mark it manually after every text or email.</p>
+  <table class="doc-table">
+    <tr><th>Action you take</th><th>Auto-status</th></tr>
+    <tr><td>Tap the <strong>Schedule Appointment</strong> button</td><td>Sets to <strong>Scheduled</strong></td></tr>
+    <tr><td>Tap <strong>Text</strong> in the Quick Actions row</td><td>Sets to <strong>Texted</strong></td></tr>
+    <tr><td>Tap <strong>Email</strong> in the Quick Actions row</td><td>Sets to <strong>Emailed</strong></td></tr>
+    <tr><td>Tap <strong>Call</strong> in the Quick Actions row</td><td>Bumps last-contacted timestamp · status NOT auto-set (you mark Spoke vs LVM after the call)</td></tr>
+  </table>
+  <div class="doc-callout doc-success"><strong>Smart enough not to demote:</strong> auto-status only ever moves a lead <em>forward</em>. If you email a Customer to thank them, the dialer bumps their last-contacted timestamp but doesn't reset them to Emailed. Pipeline stages (Scheduled, Qualified, Customer) always outrank outreach methods.</div>
+  <div class="doc-callout doc-warn"><strong>You can always override:</strong> the manual status buttons in the lead/contact detail still work the same way. Auto-status is a default, not a lock.</div>
 </div>
 
 <div class="doc-section">
