@@ -10,19 +10,22 @@ if (window.__LEAD_BOOT__) {
 
 /* ========== Lead-list categories ========== */
 const CATS = [
-  {id:'pizza',         name:'Pizza',          icon:'🍕', color:'#FF6B35'},
-  {id:'nail-salons',   name:'Nail Salons',    icon:'💅', color:'#FF375F'},
-  {id:'hair',          name:'Hair Salons',    icon:'✂️', color:'#BF5AF2'},
-  {id:'barber',        name:'Barbershops',    icon:'💈', color:'#FF453A'},
-  {id:'lashes',        name:'Lashes & Brows', icon:'👁️', color:'#FF9F0A'},
-  {id:'roofers',       name:'Roofers',        icon:'🏠', color:'#FFD60A'},
-  {id:'plumbers',      name:'Plumbers',       icon:'🔧', color:'#0A84FF'},
-  {id:'hvac',          name:'HVAC',           icon:'❄️', color:'#64D2FF'},
-  {id:'electricians',  name:'Electricians',   icon:'⚡', color:'#FFE03A'},
-  {id:'handyman',      name:'Handymen',       icon:'🛠️', color:'#34C759'},
-  {id:'pet-services',  name:'Pet Services',   icon:'🐾', color:'#5E5CE6'},
-  {id:'home-services', name:'Home Services',  icon:'🏡', color:'#30D158'},
-  {id:'food-makers',   name:'Food Makers',    icon:'🍴', color:'#FF6482'},
+  {id:'pizza',         name:'Pizza',           icon:'🍕', color:'#FF6B35'},
+  {id:'nail-salons',   name:'Nail Salons',     icon:'💅', color:'#FF375F'},
+  {id:'hair',          name:'Hair Salons',     icon:'✂️', color:'#BF5AF2'},
+  {id:'barber',        name:'Barbershops',     icon:'💈', color:'#FF453A'},
+  {id:'roofers',       name:'Roofers',         icon:'🏠', color:'#FFD60A'},
+  {id:'plumbers',      name:'Plumbers',        icon:'🔧', color:'#0A84FF'},
+  {id:'hvac',          name:'HVAC',            icon:'❄️', color:'#64D2FF'},
+  {id:'electricians',  name:'Electricians',    icon:'⚡', color:'#FFE03A'},
+  {id:'handyman',      name:'Handymen',        icon:'🛠️', color:'#34C759'},
+  {id:'painters',      name:'Painters',        icon:'🎨', color:'#FF9500'},
+  {id:'deck-builders', name:'Deck Builders',   icon:'🪵', color:'#A2845E'},
+  {id:'welders',       name:'Welders',         icon:'🔥', color:'#FF6482'},
+  {id:'cnc-shops',     name:'CNC Shops',       icon:'⚙️', color:'#8E8E93'},
+  {id:'pet-services',  name:'Pet Services',    icon:'🐾', color:'#5E5CE6'},
+  {id:'home-services', name:'Home Services',   icon:'🏡', color:'#30D158'},
+  {id:'food-makers',   name:'Food Makers',     icon:'🍴', color:'#FF6482'},
 ];
 const CAT_BY = Object.fromEntries(CATS.map(c=>[c.id,c]));
 
@@ -155,7 +158,8 @@ function switchTab(t){
   if (t==='recents')  renderRecents();
   if (t==='contacts') renderContacts();
   if (t==='leads')    renderLeads();
-  if (t==='more')     {renderCard(); updateStorageInfo(); renderDocs();}
+  if (t==='docs')     renderDocsPage();
+  if (t==='more')     {renderCard(); updateStorageInfo();}
 }
 $$('.tab').forEach(b=> b.addEventListener('click', ()=>{ vibrate(8); switchTab(b.dataset.tab); }));
 
@@ -1428,12 +1432,21 @@ const DOC_CAT_META = {
   'compliance': {label:'Compliance',      ico:'rd', svg:'<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>'}
 };
 
-function renderDocs(){
-  const list = $('#docList');
-  if (!list || !window.DOCS) return;
-  // Filter relevant scripts to the top — if user just came from a lead category, those scripts get pushed to top
-  const docs = window.DOCS.slice();
-  // Group by cat
+let docsFilter = 'all';
+let docsSearch = '';
+
+function renderDocsPage(){
+  const container = $('#docsContainer');
+  if (!container || !window.DOCS) return;
+  const q = docsSearch.toLowerCase();
+  const docs = window.DOCS.filter(d => {
+    if (docsFilter !== 'all' && d.cat !== docsFilter) return false;
+    if (!q) return true;
+    return d.title.toLowerCase().includes(q)
+        || (d.summary||'').toLowerCase().includes(q)
+        || (d.target||'').toLowerCase().includes(q);
+  });
+  // Group by cat — but only render the categories that survive the filter
   const byCat = {script:[], template:[], compliance:[]};
   for (const d of docs){ (byCat[d.cat] = byCat[d.cat]||[]).push(d); }
   let html = '';
@@ -1441,6 +1454,7 @@ function renderDocs(){
     const arr = byCat[cat] || [];
     if (!arr.length) continue;
     const meta = DOC_CAT_META[cat];
+    html += `<div class="gr"><div class="gr-h">${esc(meta.label)}</div><div class="list">`;
     html += arr.map(d => {
       const tcat = d.target && d.target!=='all' ? CATS.find(c=>c.id===d.target) : null;
       const sub = tcat ? `${tcat.icon} ${tcat.name}` : (d.summary || meta.label);
@@ -1450,12 +1464,29 @@ function renderDocs(){
         <span class="meta"><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </button>`;
     }).join('');
+    html += '</div></div>';
   }
-  list.innerHTML = html;
-  list.querySelectorAll('[data-doc]').forEach(b => {
+  if (!html) html = '<div class="empty"><h3>No matches</h3><p>Try a different search or filter.</p></div>';
+  container.innerHTML = html;
+  container.querySelectorAll('[data-doc]').forEach(b => {
     b.addEventListener('click', () => openDoc(b.dataset.doc));
   });
 }
+
+// Wire search & filter chips (run once at module load — page is in the DOM by now)
+const _docsSearch = $('#docsSearch');
+if (_docsSearch) _docsSearch.addEventListener('input', e => {
+  docsSearch = e.target.value.trim();
+  renderDocsPage();
+});
+$$('#docsSeg button').forEach(b => {
+  b.addEventListener('click', () => {
+    $$('#docsSeg button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    docsFilter = b.dataset.docfilter;
+    renderDocsPage();
+  });
+});
 
 function openDoc(docId){
   const d = (window.DOCS||[]).find(x => x.id === docId);

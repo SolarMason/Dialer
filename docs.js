@@ -915,6 +915,439 @@ const SCRIPT_PLUMBERS = header('Sales Script — Plumbing Contractors', 'v1.0 ·
 ${section_after_call_generic()}
 ` + footer();
 
+// ----- Electricians --------------------------------------------------------
+
+const SCRIPT_ELECTRICIANS = header('Sales Script — Electrical Contractors', 'v1.0 · For PA-region residential & commercial electricians') + `
+<div class="doc-section">
+  <h2 class="doc-h2">Why this market</h2>
+  <div class="doc-stats">
+    <div class="doc-pull"><div class="doc-pull-num">$30%+</div><div class="doc-pull-lbl">federal tax credit (up to $1,000) on EV charger installs through 2032</div></div>
+    <div class="doc-pull"><div class="doc-pull-num">$3K–$15K</div><div class="doc-pull-lbl">typical residential service-panel upgrade — financing visibility moves the needle</div></div>
+  </div>
+  <p class="doc-p">Electricians have two booming sub-markets that most contractor websites barely surface: <strong>EV charger installs</strong> (every new EV owner needs one and Googles for help) and <strong>panel upgrades</strong> driven by heat pumps, EV adoption, and aging service. The pitch focuses on capturing those high-intent searches.</p>
+  <div class="doc-callout doc-info"><strong>Industry signal:</strong> federal Inflation Reduction Act tax credits cover 30% of EV charger installation cost (up to $1,000) through 2032, plus utility-specific rebates. Most contractor sites don't mention any of this — easy value-add to surface.</div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">1. Pre-call research</h2>
+  <ul class="doc-checklist">
+    <li>Google "electrician [their city] PA" — where do they rank?</li>
+    <li>Their site (if any) — does it mention EV chargers? Panel upgrades? 24/7 emergency service?</li>
+    <li>License visible? PA requires HICPA registration for residential — is theirs prominent?</li>
+  </ul>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">2. Opening</h2>
+  ${ID_LINE}
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Hi, this is <strong>[your first name]</strong> from <strong>NEPA-PRO</strong> — we're a veteran-owned shop in Clarks Summit. I'm calling because we built a website platform specifically for electricians in PA, and most contractors I talk to are losing the EV charger and panel-upgrade work to bigger guys with better-positioned websites. Quick question — does your current site even mention EV charger installs?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">3. Discovery</h2>
+  <ol class="doc-ol">
+    <li><strong>"How many EV charger installs are you doing per month, and where do those leads come from?"</strong></li>
+    <li><strong>"Service panel upgrades — are most of those tied to a specific reason (EV, heat pump, kitchen remodel) or just aging service?"</strong></li>
+    <li><strong>"When somebody Googles 'emergency electrician [your city]' at 11 PM, are they finding you?"</strong></li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">4. Value pitch — electrician-specific</h2>
+  <ol class="doc-ol">
+    <li><strong>EV charger landing page</strong> — separate dedicated page that ranks for "Tesla charger installation [city]," shows pricing tiers, surfaces the 30% federal tax credit and PA utility rebates.</li>
+    <li><strong>Panel upgrade calculator</strong> — homeowner enters their existing amperage and what they want to add; the page shows them whether they need an upgrade. Self-qualifies the lead.</li>
+    <li><strong>24/7 emergency form</strong> — captures storm-damage and electrical-hazard calls when you can't pick up. Texts and emails you instantly.</li>
+    <li><strong>License + bond + insurance display</strong> — front and center. PA homeowners are wary; visible credentials close the trust gap.</li>
+    <li><strong>Service-area pages</strong> — local SEO for every town you serve. "Electrician Clarks Summit," "Panel upgrade Scranton."</li>
+    <li><strong>Commercial vs. residential split</strong> — separate pathways so commercial property managers don't navigate residential pages and vice versa.</li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">5. Pricing &amp; CTA</h2>
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Best thing is for me to share my screen for 15 minutes — I'll have mockups for [their company] specifically with your service area, your license, and the EV/rebate positioning. Tuesday or Thursday this week?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">6. Electrician-specific objections</h2>
+  <table class="doc-table">
+    <tr><th>They say</th><th>You say</th></tr>
+    <tr><td>"I get most of my work from GCs / referrals."</td><td>"Best channel. We don't replace it — we make sure when those referrals Google you, what they find closes the deal. Half of referred customers shop you online before they call."</td></tr>
+    <tr><td>"EV chargers — too much warranty hassle."</td><td>"Hear that. We position you as Tesla / ChargePoint / EnergyStar certified (whatever you actually are) so the customer's expectations match what you install. Warranty issues drop when they understand who they hired."</td></tr>
+    <tr><td>"My phone never stops, I don't need leads."</td><td>"Then this isn't lead-gen. It's a quality-of-life pitch — the form pre-qualifies before you call back, so you spend less time on calls that go nowhere."</td></tr>
+    <tr><td>"Electrical isn't really an online-search business."</td><td>"It used to not be. EV charger installs change that — anyone with a new Tesla searches. Same with panel upgrades for heat pumps. The market shifted in the last 3 years."</td></tr>
+  </table>
+</div>
+
+${section_after_call_generic()}
+` + footer();
+
+// ----- Handymen ------------------------------------------------------------
+
+const SCRIPT_HANDYMAN = header('Sales Script — Handymen', 'v1.0 · For PA-region handyman & home-repair contractors') + `
+<div class="doc-section">
+  <h2 class="doc-h2">Why this market</h2>
+  <p class="doc-p">Handyman is the most fragmented trade in our pipeline — most operators are 1–3 person shops doing small jobs ($150–$2,000) where job velocity matters more than ticket size. Two pain points: <strong>(1)</strong> they're competing against TaskRabbit / Thumbtack / Angi which take 15–30% per lead, and <strong>(2)</strong> they have no website to capture the customer who already loves them and would refer friends.</p>
+  <div class="doc-stats">
+    <div class="doc-pull"><div class="doc-pull-num">15–30%</div><div class="doc-pull-lbl">platform fee per lead on Thumbtack / Angi / TaskRabbit</div></div>
+    <div class="doc-pull"><div class="doc-pull-num">$300+</div><div class="doc-pull-lbl">average ticket — 5–10 jobs/week is the volume target</div></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">1. Pre-call research</h2>
+  <ul class="doc-checklist">
+    <li>Are they a one-person op or a small crew? Different pitch.</li>
+    <li>Google "handyman [their city]" — do they rank?</li>
+    <li>Are they on Thumbtack / Angi / TaskRabbit? (Almost always.)</li>
+    <li>License — PA requires HICPA registration for jobs over $5K. Verify if they're licensed.</li>
+  </ul>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">2. Opening</h2>
+  ${ID_LINE}
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Hi, this is <strong>[your first name]</strong> from <strong>NEPA-PRO</strong> — we're a veteran-owned shop in Clarks Summit. I'm calling because we built a website platform specifically for handymen and small home-repair contractors in PA. Quick question: are you currently paying Thumbtack or Angi for leads, and if so, do you ever get the feeling those leads are going to four other guys at the same time?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">3. Discovery</h2>
+  <ol class="doc-ol">
+    <li><strong>"How are most jobs coming in — referrals, platforms like Thumbtack, or Google?"</strong></li>
+    <li><strong>"What's your average job size, and how many do you run in a typical week?"</strong></li>
+    <li><strong>"What kind of work do you turn down? Drywall, plumbing rough-in, structural — knowing what you don't do is half the website."</strong></li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">4. Value pitch — handyman-specific</h2>
+  <ol class="doc-ol">
+    <li><strong>"Send a photo, get a quote" form</strong> — homeowner texts a photo, you reply with ballpark pricing. Filters out tire-kickers and books real jobs faster.</li>
+    <li><strong>Service list with rough pricing</strong> — TV mounting from $X, ceiling fan install from $Y, etc. Sets expectations before they call.</li>
+    <li><strong>Coverage area map</strong> — show the towns you'll travel to. "Within 20 minutes of Clarks Summit." Stops the "are you local?" call.</li>
+    <li><strong>Review aggregation</strong> — your Google + Thumbtack + Angi reviews pulled together. Trust is the entire game in handyman.</li>
+    <li><strong>Booking calendar</strong> — let customers self-book a time slot for non-urgent work. Fewer phone-tag rounds.</li>
+    <li><strong>Branded follow-ups</strong> — automatic "how was the job?" text 24 hours after work, with a one-tap review link.</li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">5. Pricing &amp; CTA</h2>
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Best thing is for me to share my screen for 10 minutes — I'll have something built for [their company] showing the photo-quote flow, your service area, and your reviews pulled together. Tuesday or Wednesday?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">6. Handyman-specific objections</h2>
+  <table class="doc-table">
+    <tr><th>They say</th><th>You say</th></tr>
+    <tr><td>"Thumbtack works fine for me."</td><td>"Most guys feel that way until they do the math. How many leads a month, average price per lead, close rate? When you back into cost-per-closed-job, it's usually eye-opening."</td></tr>
+    <tr><td>"I'm just one guy, I don't need a real website."</td><td>"That's actually exactly why you do. Solo guys lose to bigger crews when the customer Googles them. Your site is the equalizer — it makes you look professional without you needing employees."</td></tr>
+    <tr><td>"My customers are word-of-mouth."</td><td>"Best channel there is. The site doesn't replace referrals; it converts them. When someone mentions you, the next thing they do is Google you. Make sure what they find closes the deal."</td></tr>
+    <tr><td>"I don't have time for a website."</td><td>"Get that. Build is on us — you give us photos and a list of services, we do the rest. Once it's up, you check it once a week."</td></tr>
+  </table>
+</div>
+
+${section_after_call_generic()}
+` + footer();
+
+// ----- Painters ------------------------------------------------------------
+
+const SCRIPT_PAINTERS = header('Sales Script — Painters', 'v1.0 · For PA-region residential & commercial painters') + `
+<div class="doc-section">
+  <h2 class="doc-h2">Why this market</h2>
+  <p class="doc-p">Painting is a visual trade — homeowners decide on a painter primarily by looking at photos of past work. Most painter websites either (a) don't exist or (b) have generic stock photos that hurt more than help. The pitch is straightforward: <strong>portfolio + instant estimate forms</strong> close more jobs at higher ticket prices.</p>
+  <div class="doc-stats">
+    <div class="doc-pull"><div class="doc-pull-num">$3K–$10K</div><div class="doc-pull-lbl">typical interior repaint — visual trust closes the deal</div></div>
+    <div class="doc-pull"><div class="doc-pull-num">~70%</div><div class="doc-pull-lbl">of painting customers compare 3+ contractors before deciding</div></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">1. Pre-call research</h2>
+  <ul class="doc-checklist">
+    <li>Their site or Google Business Profile — are there photos of actual completed jobs?</li>
+    <li>Reviews — most painters have great reviews but no system to surface them</li>
+    <li>Interior, exterior, commercial, or all? Different pitch per focus.</li>
+  </ul>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">2. Opening</h2>
+  ${ID_LINE}
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Hi, this is <strong>[your first name]</strong> from <strong>NEPA-PRO</strong> — we're a veteran-owned shop in Clarks Summit. I'm calling because we built a website platform specifically for painters in PA, and the #1 reason painters lose bids is the homeowner can't see their work online. Quick question: do you have a portfolio of finished jobs anywhere customers can browse before they call?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">3. Discovery</h2>
+  <ol class="doc-ol">
+    <li><strong>"What's your job mix — interior, exterior, cabinets, commercial?"</strong></li>
+    <li><strong>"When you finish a job, do you take photos? What happens to them?"</strong> <em>Almost always: "On my phone." That's gold sitting unused.</em></li>
+    <li><strong>"How are estimates handled — phone walkthroughs, in-person, or send-me-photos?"</strong></li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">4. Value pitch — painter-specific</h2>
+  <ol class="doc-ol">
+    <li><strong>Filterable photo portfolio</strong> — interior / exterior / cabinets / specialty. Homeowners filter to "kitchen cabinet refinishing" and see 30 examples. Closes the trust gap instantly.</li>
+    <li><strong>Before/after slider</strong> — drag to compare. The single most powerful conversion tool in the trade.</li>
+    <li><strong>Photo-estimate form</strong> — homeowner uploads 4 photos + room dimensions, you reply with a ballpark. Pre-qualifies leads that turn into real walkthroughs.</li>
+    <li><strong>Color consultation booking</strong> — separate page for upsell service. Most painters offer it; few advertise it.</li>
+    <li><strong>License + insurance + worker's comp display</strong> — visible credentials, especially important for interior work where homeowners worry about damage.</li>
+    <li><strong>Review aggregation + automated review requests</strong> — text goes out 24 hours after job completion.</li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">5. Pricing &amp; CTA</h2>
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Best thing is for me to share my screen for 10 minutes — I'll have a portfolio template built for [their company] using whatever sample photos you've got. Tuesday or Wednesday?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">6. Painter-specific objections</h2>
+  <table class="doc-table">
+    <tr><th>They say</th><th>You say</th></tr>
+    <tr><td>"My photos aren't good enough."</td><td>"Hear that all the time. iPhone photos are fine — we'll guide what to capture. Most homeowners aren't comparing photo quality, they're looking for proof you've done their type of project."</td></tr>
+    <tr><td>"I don't have a website right now and word-of-mouth keeps me busy."</td><td>"Best channel. Site doesn't replace it — it converts referrals. Your friend says 'use Bob the painter' and they Google you. If nothing comes up, the trust drops in half."</td></tr>
+    <tr><td>"Painting isn't really shopped online."</td><td>"It is now. Homeowners look at photos before color consult before they call. We make sure your photos are what they're looking at."</td></tr>
+    <tr><td>"I do mostly commercial — different business."</td><td>"Got it. Commercial painters need a different page set — property managers, insurance work, multi-unit. We can build that path separately. Different leads, different pitch."</td></tr>
+  </table>
+</div>
+
+${section_after_call_generic()}
+` + footer();
+
+// ----- Deck Builders -------------------------------------------------------
+
+const SCRIPT_DECKS = header('Sales Script — Deck Builders', 'v1.0 · For PA-region custom deck contractors') + `
+<div class="doc-section">
+  <h2 class="doc-h2">Why this market</h2>
+  <p class="doc-p">Deck building is seasonal (April–October), high-ticket ($8K–$60K), and visually-driven. Homeowners spend weeks researching before contacting any contractor. Most deck builder websites are weak — generic stock photos, no calculator, no financing visibility — even though the customer is doing exactly the kind of intent-rich research where a great site converts cold visitors.</p>
+  <div class="doc-stats">
+    <div class="doc-pull"><div class="doc-pull-num">$8K–$60K</div><div class="doc-pull-lbl">typical deck build — material choice drives the spread</div></div>
+    <div class="doc-pull"><div class="doc-pull-num">3–6 wk</div><div class="doc-pull-lbl">research-to-decision timeline — your site has time to win them over</div></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">1. Pre-call research</h2>
+  <ul class="doc-checklist">
+    <li>Their site — do they have photos of completed decks? By material? By size?</li>
+    <li>Composite vs. wood — what do they specialize in?</li>
+    <li>TimberTech / Trex / Azek dealer? Major selling point most don't surface.</li>
+  </ul>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">2. Opening</h2>
+  ${ID_LINE}
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Hi, this is <strong>[your first name]</strong> from <strong>NEPA-PRO</strong> — we're a veteran-owned shop in Clarks Summit. I'm calling because we built a website platform specifically for custom deck builders in PA. Quick question: when somebody is researching a $20,000 composite deck for 6 weeks before calling you, what does your website show them?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">3. Discovery</h2>
+  <ol class="doc-ol">
+    <li><strong>"What's your typical project size and material — wood, composite, mix?"</strong></li>
+    <li><strong>"How are leads coming in today — referrals, BBB, manufacturer dealer locator, your site?"</strong></li>
+    <li><strong>"Do you offer financing on bigger builds, and if so, do customers know before they call?"</strong></li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">4. Value pitch — deck-builder-specific</h2>
+  <ol class="doc-ol">
+    <li><strong>Filterable project gallery</strong> — by material, by size, by feature (lighting, multi-level, screened-in, pergola). Homeowners filter to what they want to see.</li>
+    <li><strong>Deck cost calculator</strong> — square footage, material, features. Spits out an estimated range. Pre-qualifies and educates simultaneously.</li>
+    <li><strong>Material comparison tool</strong> — wood vs. composite vs. PVC, with cost-per-year-of-life math. Closes the higher-ticket sale because the customer understands the value.</li>
+    <li><strong>Financing front-and-center</strong> — "$0 down, payments from $X/mo on a $20K deck." Massive lever for closing decisions where the customer was on the fence about scope.</li>
+    <li><strong>Permit &amp; HOA assistance</strong> — page that explains your role in pulling permits and dealing with HOAs. Differentiates from solo contractors.</li>
+    <li><strong>Build timeline transparency</strong> — "Booked through July, taking deposits for August builds." Sets expectations and creates urgency.</li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">5. Pricing &amp; CTA</h2>
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Best thing is for me to share my screen for 15 minutes — I'll have a portfolio + calculator template built for [their company] specifically. Tuesday or Wednesday this week?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">6. Deck-builder-specific objections</h2>
+  <table class="doc-table">
+    <tr><th>They say</th><th>You say</th></tr>
+    <tr><td>"I'm booked through next year."</td><td>"That's fantastic. Then this isn't about more leads — it's about better ones. The calculator filters tire-kickers; you only spend time on customers who already know what they want and can afford it."</td></tr>
+    <tr><td>"Customers always negotiate price down."</td><td>"That's almost always because they're comparing apples to oranges — your $30K composite vs. someone else's $18K wood. The material comparison page makes them understand what they're actually buying. Negotiation drops."</td></tr>
+    <tr><td>"My TimberTech / Trex dealer locator brings me leads."</td><td>"Keep it. Dealer locator drives traffic; your own site converts it. Right now those leads are landing on a generic page. We make them land on your portfolio."</td></tr>
+    <tr><td>"It's seasonal — slow in winter."</td><td>"Right, which is exactly when winter pre-booking pages earn their keep. We build off-season into the system — locking in spring builds with deposits in January."</td></tr>
+  </table>
+</div>
+
+${section_after_call_generic()}
+` + footer();
+
+// ----- Welders -------------------------------------------------------------
+
+const SCRIPT_WELDERS = header('Sales Script — Welding & Metal Fabrication', 'v1.0 · For PA-region welders & metal fabricators') + `
+<div class="doc-section">
+  <h2 class="doc-h2">Why this market</h2>
+  <p class="doc-p">Welding is a B2B-heavy trade — most jobs come from contractors, manufacturers, and farm/equipment owners, not residential consumers. The pitch is different from consumer trades: <strong>certifications, capabilities, equipment, and turnaround</strong> are what buyers research. Most welder websites are 1-page brochures from 2010 that say "we weld." That's the gap.</p>
+  <div class="doc-stats">
+    <div class="doc-pull"><div class="doc-pull-num">3+ AWS</div><div class="doc-pull-lbl">certifications typical for commercial work — visibility wins commercial accounts</div></div>
+    <div class="doc-pull"><div class="doc-pull-num">B2B</div><div class="doc-pull-lbl">primary buyer — contractors, plant managers, farm equipment owners</div></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">1. Pre-call research</h2>
+  <ul class="doc-checklist">
+    <li>Their site — does it list AWS / ASME certifications? Equipment specs?</li>
+    <li>What welding processes? MIG / TIG / stick / aluminum / stainless?</li>
+    <li>Mobile rig or shop-only? Different pitch.</li>
+    <li>Do they have a fab shop or pure repair?</li>
+  </ul>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">2. Opening</h2>
+  ${ID_LINE}
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Hi, this is <strong>[your first name]</strong> from <strong>NEPA-PRO</strong> — we're a veteran-owned shop in Clarks Summit. I'm calling because we built a website platform specifically for welders and metal fabricators in PA. Quick question: when a plant manager or general contractor is searching for a TIG welder with stainless capability, does your current site even tell them whether you can handle it?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">3. Discovery</h2>
+  <ol class="doc-ol">
+    <li><strong>"What's your typical buyer — contractor, manufacturer, farm/equipment, residential?"</strong></li>
+    <li><strong>"What certifications do you hold, and are they visible to a customer Googling you?"</strong></li>
+    <li><strong>"What's the breakdown — repair work, fab shop, mobile rig calls?"</strong></li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">4. Value pitch — welder-specific</h2>
+  <ol class="doc-ol">
+    <li><strong>Capability matrix</strong> — table of processes (MIG/TIG/stick/aluminum/stainless), thicknesses, lengths, certifications. Plant managers scan it in 5 seconds and decide if you're a fit.</li>
+    <li><strong>Certifications front-and-center</strong> — AWS, ASME, code-stamp work. Visibility matters for commercial bids more than any other lever.</li>
+    <li><strong>Project portfolio</strong> — past jobs by type (structural, equipment repair, custom fab, ornamental). Photos with brief descriptions of process used.</li>
+    <li><strong>Mobile rig service area</strong> — if you have a mobile setup, map of how far you'll travel. Big differentiator for emergency equipment repair.</li>
+    <li><strong>Quote request form</strong> — drawing/photo upload, material specs, quantity, deadline. Filters serious B2B inquiries.</li>
+    <li><strong>Equipment list</strong> — what's in the shop. Sounds like overkill, but contractors specifically search for "shop with [machine]."</li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">5. Pricing &amp; CTA</h2>
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Best thing is for me to share my screen for 15 minutes — I'll have a capability matrix and portfolio template built for [their shop] specifically. Tuesday or Thursday this week?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">6. Welder-specific objections</h2>
+  <table class="doc-table">
+    <tr><th>They say</th><th>You say</th></tr>
+    <tr><td>"My customers come from word-of-mouth in the industry."</td><td>"Best channel — and we don't replace it. When a plant buyer hears about you, they look you up before procurement signs off. Your site is the deciding factor at that step, not the lead source."</td></tr>
+    <tr><td>"I'm too small for commercial accounts."</td><td>"Your size means lower overhead. Many smaller commercial buyers prefer that. The site is what makes you findable for the size of work you actually want."</td></tr>
+    <tr><td>"My phone never stops, I don't need leads."</td><td>"Then this isn't lead-gen. It's about better-quality jobs — the form filters quote requests so you only respond to ones that fit your shop."</td></tr>
+    <tr><td>"Welding isn't googled."</td><td>"It is by procurement and facility managers. Different searcher than residential. They search for exact processes — 'aluminum TIG stainless food-grade' — and find shops that surface those terms specifically."</td></tr>
+  </table>
+</div>
+
+${section_after_call_generic()}
+` + footer();
+
+// ----- CNC Shops -----------------------------------------------------------
+
+const SCRIPT_CNC = header('Sales Script — CNC & Precision Machine Shops', 'v1.0 · For PA-region CNC shops & precision manufacturers') + `
+<div class="doc-section">
+  <h2 class="doc-h2">Why this market</h2>
+  <p class="doc-p">CNC shops are pure B2B — buyers are mechanical engineers, procurement officers, and product designers searching for vendors who can hold tolerances on specific materials. They aren't shopping on price first; they're shopping on <strong>capability + reliability + ISO certification</strong>. Most shop websites haven't been updated since 2015 and miss the buyers who'd otherwise be ideal accounts.</p>
+  <div class="doc-stats">
+    <div class="doc-pull"><div class="doc-pull-num">ISO 9001</div><div class="doc-pull-lbl">often required for aerospace/medical/defense work — must be visible</div></div>
+    <div class="doc-pull"><div class="doc-pull-num">3-axis / 5-axis</div><div class="doc-pull-lbl">capability differentiation — lock in the searches that match your shop</div></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">1. Pre-call research</h2>
+  <ul class="doc-checklist">
+    <li>Their site — capabilities listed? Equipment? Certifications?</li>
+    <li>Industries served — automotive, aerospace, medical, food-grade, general?</li>
+    <li>Prototype-to-production, or production-only?</li>
+    <li>ITAR / ISO / AS9100 — verify what they actually have.</li>
+  </ul>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">2. Opening</h2>
+  ${ID_LINE}
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Hi, this is <strong>[your first name]</strong> from <strong>NEPA-PRO</strong> — we're a veteran-owned shop in Clarks Summit. I'm calling because we built a website platform specifically for CNC and precision machine shops. Quick question: when a procurement officer at an aerospace OEM is searching for a 5-axis shop with AS9100, does your site come up?"</span></div>
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">3. Discovery</h2>
+  <ol class="doc-ol">
+    <li><strong>"What industries are your bread-and-butter — aerospace, medical, automotive, defense, general?"</strong></li>
+    <li><strong>"Capabilities — 3-axis, 4-axis, 5-axis? Mill, lathe, swiss?"</strong></li>
+    <li><strong>"Certifications — ISO 9001, AS9100, ITAR?"</strong></li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">4. Value pitch — CNC-specific</h2>
+  <ol class="doc-ol">
+    <li><strong>Capabilities matrix</strong> — equipment, axes, work envelopes, tolerance ranges, materials. Procurement scans it and decides whether to send the RFQ.</li>
+    <li><strong>Certifications wall</strong> — ISO 9001, AS9100D, ITAR-registered, etc. Logos and certificate numbers. Buyer compliance starts here.</li>
+    <li><strong>Industry case studies</strong> — anonymized projects: aerospace bracket from 6061-T6, medical device housing from 17-4 stainless, etc. Shows the buyer you've solved their problem before.</li>
+    <li><strong>RFQ portal</strong> — secure file upload for STEP / DWG / PDF. Procurement uploads the print + quantity + due date, you reply with a quote. Removes the email back-and-forth.</li>
+    <li><strong>Equipment list with brand &amp; year</strong> — Haas / Mazak / Doosan / Okuma. Buyers specifically search for shops that run their preferred equipment.</li>
+    <li><strong>Lead-time transparency</strong> — "Currently quoting at 4-week lead time, expedite available." Sets expectations, builds trust.</li>
+  </ol>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">5. Pricing &amp; CTA</h2>
+  <div class="doc-script">
+    <div class="doc-script-line"><span class="doc-script-actor">YOU</span><span class="doc-script-text">"Best thing is for me to share my screen for 15 minutes — I'll have a capability matrix and RFQ portal template built for [their shop] specifically. Tuesday or Thursday this week?"</span></div>
+  </div>
+  <div class="doc-callout doc-info">
+    <strong>CNC sales cycles are longer.</strong> First conversation books a discovery; discovery books a proposal; proposal might take 30–60 days to close because procurement is involved. Patience and follow-up rhythm matter more than urgency.
+  </div>
+</div>
+
+<div class="doc-section">
+  <h2 class="doc-h2">6. CNC-specific objections</h2>
+  <table class="doc-table">
+    <tr><th>They say</th><th>You say</th></tr>
+    <tr><td>"All my work is repeat customers."</td><td>"Best position to be in. The site does two things — captures the new lead occasionally, and shows your existing customers' procurement teams that you're modern. Many old-school shops lose accounts when procurement decides their vendor 'looks dated.'"</td></tr>
+    <tr><td>"Procurement uses ThomasNet / MFG / industry directories."</td><td>"Right. And those listings link to your site. If your site looks like 2010, the click bounces. We make sure the click converts."</td></tr>
+    <tr><td>"My business is too technical for a website to capture."</td><td>"Your business is exactly the kind of thing a website should capture — engineers love specs, equipment lists, tolerance data. They want to read all of it before they call."</td></tr>
+    <tr><td>"I've tried RFQ portals, customers don't use them."</td><td>"Old portals, yeah. Modern ones with drag-and-drop, instant confirmation, and clear status — different story. Worth seeing what we'd build."</td></tr>
+  </table>
+</div>
+
+${section_after_call_generic()}
+` + footer();
+
 // ===========================================================================
 // OPERATIONAL DOCS — used after the cold call books a discovery
 // ===========================================================================
@@ -1088,13 +1521,19 @@ const CRM_STANDARDS = header('CRM Data Standards', 'v1.0 · How we keep the dial
 
 return [
   // Sales scripts (one per active category)
-  { id:'script-pizza',    cat:'script',     target:'pizza',       title:'Sales Script — Pizza Shops',         summary:'Cold-call pitch for NEPA pizzerias',                  body:SCRIPT_PIZZA },
-  { id:'script-nails',    cat:'script',     target:'nail-salons', title:'Sales Script — Nail Salons',         summary:'Cold-call pitch for PA nail salons',                  body:SCRIPT_NAILS },
-  { id:'script-hair',     cat:'script',     target:'hair',        title:'Sales Script — Hair Salons',         summary:'Cold-call pitch for PA hair salons',                  body:SCRIPT_HAIR },
-  { id:'script-barber',   cat:'script',     target:'barber',      title:'Sales Script — Barbershops',         summary:'Cold-call pitch for PA barbershops',                  body:SCRIPT_BARBER },
-  { id:'script-roofers',  cat:'script',     target:'roofers',     title:'Sales Script — Roofers',             summary:'Cold-call pitch for PA roofing contractors',          body:SCRIPT_ROOFERS },
-  { id:'script-hvac',     cat:'script',     target:'hvac',        title:'Sales Script — HVAC Contractors',    summary:'Cold-call pitch for PA HVAC contractors',             body:SCRIPT_HVAC },
-  { id:'script-plumbers', cat:'script',     target:'plumbers',    title:'Sales Script — Plumbing Contractors',summary:'Cold-call pitch for PA plumbing contractors',         body:SCRIPT_PLUMBERS },
+  { id:'script-pizza',    cat:'script',     target:'pizza',         title:'Sales Script — Pizza Shops',           summary:'Cold-call pitch for NEPA pizzerias',                  body:SCRIPT_PIZZA },
+  { id:'script-nails',    cat:'script',     target:'nail-salons',   title:'Sales Script — Nail Salons',           summary:'Cold-call pitch for PA nail salons',                  body:SCRIPT_NAILS },
+  { id:'script-hair',     cat:'script',     target:'hair',          title:'Sales Script — Hair Salons',           summary:'Cold-call pitch for PA hair salons',                  body:SCRIPT_HAIR },
+  { id:'script-barber',   cat:'script',     target:'barber',        title:'Sales Script — Barbershops',           summary:'Cold-call pitch for PA barbershops',                  body:SCRIPT_BARBER },
+  { id:'script-roofers',  cat:'script',     target:'roofers',       title:'Sales Script — Roofers',               summary:'Cold-call pitch for PA roofing contractors',          body:SCRIPT_ROOFERS },
+  { id:'script-hvac',     cat:'script',     target:'hvac',          title:'Sales Script — HVAC Contractors',      summary:'Cold-call pitch for PA HVAC contractors',             body:SCRIPT_HVAC },
+  { id:'script-plumbers', cat:'script',     target:'plumbers',      title:'Sales Script — Plumbing Contractors',  summary:'Cold-call pitch for PA plumbing contractors',         body:SCRIPT_PLUMBERS },
+  { id:'script-electricians',cat:'script',  target:'electricians',  title:'Sales Script — Electrical Contractors',summary:'Cold-call pitch for PA electrical contractors',       body:SCRIPT_ELECTRICIANS },
+  { id:'script-handyman', cat:'script',     target:'handyman',      title:'Sales Script — Handymen',              summary:'Cold-call pitch for PA handyman & repair contractors',body:SCRIPT_HANDYMAN },
+  { id:'script-painters', cat:'script',     target:'painters',      title:'Sales Script — Painters',              summary:'Cold-call pitch for PA painting contractors',         body:SCRIPT_PAINTERS },
+  { id:'script-decks',    cat:'script',     target:'deck-builders', title:'Sales Script — Deck Builders',         summary:'Cold-call pitch for PA custom deck builders',         body:SCRIPT_DECKS },
+  { id:'script-welders',  cat:'script',     target:'welders',       title:'Sales Script — Welding & Metal Fab',   summary:'Cold-call pitch for PA welders & metal fabricators',  body:SCRIPT_WELDERS },
+  { id:'script-cnc',      cat:'script',     target:'cnc-shops',     title:'Sales Script — CNC & Precision Shops', summary:'Cold-call pitch for PA CNC & precision machine shops',body:SCRIPT_CNC },
   // Templates that apply to every call
   { id:'voicemail',       cat:'template',   target:'all',         title:'Voicemail Script',                   summary:'Sub-25-second LVM template',                          body:VOICEMAIL },
   { id:'email-followup',  cat:'template',   target:'all',         title:'Email Follow-up Template',           summary:'Send within 30 minutes of an LVM',                    body:EMAIL },

@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-08T01:10:27Z",
+  "lastUpdated": "2026-05-08T11:41:33Z",
   "source": "https://docs.google.com/spreadsheets/d/1puRZ_27LA7CurTKQMxrCKU7H3AZ-1o_5NMfRLKQoc-Y/edit",
   "categories": [
     {
@@ -36,6 +36,36 @@
       "id": "hvac",
       "count": 1138,
       "file": "leads-hvac.js"
+    },
+    {
+      "id": "electricians",
+      "count": 3098,
+      "file": "leads-electricians.js"
+    },
+    {
+      "id": "handyman",
+      "count": 1898,
+      "file": "leads-handyman.js"
+    },
+    {
+      "id": "painters",
+      "count": 628,
+      "file": "leads-painters.js"
+    },
+    {
+      "id": "deck-builders",
+      "count": 1561,
+      "file": "leads-deck-builders.js"
+    },
+    {
+      "id": "welders",
+      "count": 1545,
+      "file": "leads-welders.js"
+    },
+    {
+      "id": "cnc-shops",
+      "count": 43,
+      "file": "leads-cnc-shops.js"
     }
   ]
 }
